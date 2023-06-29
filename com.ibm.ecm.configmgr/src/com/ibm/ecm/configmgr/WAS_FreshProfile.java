@@ -8,6 +8,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.io.File;
+import java.io.InputStream;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.GroupLayout;
@@ -40,8 +41,9 @@ public class WAS_FreshProfile extends JFrame {
 	private JTextField AppServerHostt;
 	private JTextField AppServerTimeoutt;
 	private JTextField AppServerProfilet;
-	private JComboBox<String> comboBox;
-	private JComboBox<String> comboBox_2;
+	private JComboBox<String> AppServerVersionOptions;
+	private JComboBox<String> AppServerSecurity;
+	private JComboBox<String> AppServerCellName;
 	private JCheckBox TurnOffSSLc;
 	public static String PROPERTY = "property";
 	public static String NAME = "name";
@@ -78,9 +80,9 @@ public class WAS_FreshProfile extends JFrame {
 		setBounds(100, 100, 638, 656);
 		setResizable(false);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		if(scenario.equals("Fresh"))
+		if(scenario.equals("Fresh")||scenario.equals("UpgradeWithoutServers"))
 		setTitle("Create New Installation Profile");
-		else if(scenario.equals("Upgrade"))
+		else if(scenario.equals("UpgradeWithServers"))
 		{
 			setTitle("Upgrade Configuration Profile");
 			if(!CMUtil.profileName.equals(""))
@@ -114,13 +116,12 @@ public class WAS_FreshProfile extends JFrame {
 		
 		JLabel lblNewLabel_2 = props.setLabel("Application server version* :"); //new JLabel("Application server version* :");
 		
-		comboBox = new JComboBox<String>();
-		comboBox.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "8.5.5", "9.0" }));
-		comboBox.addActionListener(new ActionListener() {
+		AppServerVersionOptions = props.getComboBox(new String[] { "8.5.5", "9.0" });
+		AppServerVersionOptions.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
-				String wasVersion = comboBox.getSelectedItem().toString();
+				String wasVersion = AppServerVersionOptions.getSelectedItem().toString();
 				CMUtil.wasVersion = wasVersion;
 				CMUtil.appServerVersion = wasVersion;
 			}
@@ -186,9 +187,8 @@ public class WAS_FreshProfile extends JFrame {
 		
 		JLabel lblNewLabel_10 = props.setLabel("Security Domain* :"); //new JLabel("Security Domain* :");
 		
-		JComboBox<String> comboBox_1 = new JComboBox<String>();
-		comboBox_1.setModel(new DefaultComboBoxModel<>(new String[] {"default"}));
-		comboBox_1.setSelectedItem(CMUtil.securityDomain);
+		AppServerSecurity = props.getComboBox(new String[] {"default"});
+		AppServerSecurity.setSelectedItem(CMUtil.securityDomain);
 		CMUtil.securityDomain = "default";
 		
 		JLabel lblNewLabel_11 = props.setLabel("Application server transaction timeout* :"); //new JLabel("Application server transaction timeout* :");
@@ -202,7 +202,7 @@ public class WAS_FreshProfile extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
-				
+				testPerformed(e);
 			}
 		});
 		
@@ -229,7 +229,7 @@ public class WAS_FreshProfile extends JFrame {
 		});
 		
 		JButton nextBtn = props.getButton("Next>"); //new JButton("Next >");
-		if(scenario.equals("Upgrade"))
+		if((scenario.equals("UpgradeWithServers"))||(scenario.equals("UpgradeWithoutServers")))
 			nextBtn.setEnabled(false);
 		nextBtn.addActionListener(new ActionListener() {
 			@Override
@@ -267,17 +267,17 @@ public class WAS_FreshProfile extends JFrame {
 		);
 		upperPanel.setLayout(gl_panel);
 		
-		comboBox_2 = new JComboBox<String>();
-		comboBox_2.addActionListener(new ActionListener() {
+		AppServerCellName = new JComboBox<String>();
+		AppServerCellName.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
-		    	CMUtil.appServerCell = comboBox_2.getSelectedItem().toString();
+		    	CMUtil.appServerCell = AppServerCellName.getSelectedItem().toString();
 		    	System.out.println(CMUtil.appServerCell);
 			}
 		});
 		
-		comboBox_2.addFocusListener(new FocusListener() {
+		AppServerCellName.addFocusListener(new FocusListener() {
 			@Override
 			public void focusLost(FocusEvent e) {
 				// TODO Auto-generated method stub
@@ -290,7 +290,7 @@ public class WAS_FreshProfile extends JFrame {
 				String scriptName = "fetchcell.py", licenseValue = "";
 	    		cellValue = WebsphereUtil.runScript(scriptName,licenseValue);
 	    		lblNewLabel_1.setText("*Server cell fetched successfully");
-	    		comboBox_2.setModel(new DefaultComboBoxModel<>(new String[] {cellValue}));
+	    		AppServerCellName.setModel(new DefaultComboBoxModel<>(new String[] {cellValue}));
 	    		System.out.println(cellValue);
 			}
 		});
@@ -328,7 +328,7 @@ public class WAS_FreshProfile extends JFrame {
 					.addGap(6)
 					.addComponent(lblNewLabel_2, GroupLayout.PREFERRED_SIZE, 300, GroupLayout.PREFERRED_SIZE)
 					.addGap(20)
-					.addComponent(comboBox, GroupLayout.PREFERRED_SIZE, 270, GroupLayout.PREFERRED_SIZE))
+					.addComponent(AppServerVersionOptions, GroupLayout.PREFERRED_SIZE, 270, GroupLayout.PREFERRED_SIZE))
 				.addGroup(gl_panel_1.createSequentialGroup()
 					.addGap(6)
 					.addComponent(lblNewLabel_3, GroupLayout.PREFERRED_SIZE, 300, GroupLayout.PREFERRED_SIZE)
@@ -376,7 +376,7 @@ public class WAS_FreshProfile extends JFrame {
 					.addGap(6)
 					.addComponent(lblNewLabel_9, GroupLayout.PREFERRED_SIZE, 300, GroupLayout.PREFERRED_SIZE)
 					.addGap(20)
-					.addComponent(comboBox_2, GroupLayout.PREFERRED_SIZE, 270, GroupLayout.PREFERRED_SIZE))
+					.addComponent(AppServerCellName, GroupLayout.PREFERRED_SIZE, 270, GroupLayout.PREFERRED_SIZE))
 				.addGroup(gl_panel_1.createSequentialGroup()
 					.addGap(6)
 					.addComponent(lblNewLabel_11, GroupLayout.PREFERRED_SIZE, 300, GroupLayout.PREFERRED_SIZE)
@@ -386,7 +386,7 @@ public class WAS_FreshProfile extends JFrame {
 					.addGap(6)
 					.addComponent(lblNewLabel_10, GroupLayout.PREFERRED_SIZE, 300, GroupLayout.PREFERRED_SIZE)
 					.addGap(20)
-					.addComponent(comboBox_1, GroupLayout.PREFERRED_SIZE, 270, GroupLayout.PREFERRED_SIZE))
+					.addComponent(AppServerSecurity, GroupLayout.PREFERRED_SIZE, 270, GroupLayout.PREFERRED_SIZE))
 				.addGroup(gl_panel_1.createSequentialGroup()
 					.addGap(326)
 					.addComponent(testBtn, GroupLayout.PREFERRED_SIZE, 155, GroupLayout.PREFERRED_SIZE))
@@ -415,7 +415,7 @@ public class WAS_FreshProfile extends JFrame {
 						.addGroup(gl_panel_1.createSequentialGroup()
 							.addGap(4)
 							.addComponent(lblNewLabel_2))
-						.addComponent(comboBox, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+						.addComponent(AppServerVersionOptions, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
 					.addGap(9)
 					.addGroup(gl_panel_1.createParallelGroup(Alignment.LEADING)
 						.addGroup(gl_panel_1.createSequentialGroup()
@@ -466,7 +466,7 @@ public class WAS_FreshProfile extends JFrame {
 						.addGroup(gl_panel_1.createSequentialGroup()
 							.addGap(4)
 							.addComponent(lblNewLabel_9))
-						.addComponent(comboBox_2, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+						.addComponent(AppServerCellName, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
 					.addGap(13)
 					.addGroup(gl_panel_1.createParallelGroup(Alignment.LEADING)
 						.addGroup(gl_panel_1.createSequentialGroup()
@@ -478,7 +478,7 @@ public class WAS_FreshProfile extends JFrame {
 						.addGroup(gl_panel_1.createSequentialGroup()
 							.addGap(4)
 							.addComponent(lblNewLabel_10))
-						.addComponent(comboBox_1, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+						.addComponent(AppServerSecurity, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
 					.addGap(26)
 					.addComponent(testBtn)
 					.addGap(12)
@@ -516,22 +516,23 @@ public class WAS_FreshProfile extends JFrame {
 		CMUtil.appServerAdminPassword = AppServerAdminpasswordt.getText();
 		CMUtil.appServerAdminUser = AppServerAdminnamet.getText();
 		CMUtil.appServerSOAP = AppServerSOAPt.getText();
+		CMUtil.appServerCell = AppServerCellName.getSelectedItem().toString();
 		CMUtil.appServerTimeout = AppServerTimeoutt.getText();
 		CMUtil.appServerHostName = AppServerHostt.getText();
-		CMUtil.securityDomain = comboBox.getSelectedItem().toString();
+		CMUtil.securityDomain = AppServerSecurity.getSelectedItem().toString();
 		CMUtil.appServerProfile = AppServerProfilet.getText();
 		CMUtil.turnOffSSL = "false";
 		if(TurnOffSSLc.isSelected())
 		  CMUtil.turnOffSSL = "true";
 		setVisible(false);
-		ChooseTasksPanel ctp = new ChooseTasksPanel(CMUtil.appServer);
+		ChooseTasksPanel ctp = new ChooseTasksPanel(CMUtil.appServer,CMUtil.scenario);
 		ctp.setVisible(true);
 		ctp.setLocationRelativeTo(null);
         //this.dispose();
 	}
 	public void backPerformed(ActionEvent ev)
 	{
-		if(scenario.equals("Upgrade"))
+		if(scenario.equals("UpgradeWithServers"))
 		{
 			setVisible(false);
 			UpgradeConfiguration_server ucs = new UpgradeConfiguration_server();
@@ -541,15 +542,38 @@ public class WAS_FreshProfile extends JFrame {
 		else if(scenario.equals("Fresh"))
 		{
 			setVisible(false);
-			ProfDetails2 pd2 = new ProfDetails2();
+			ProfDetails2 pd2 = new ProfDetails2("Fresh");
 			pd2.setVisible(true);
 			pd2.setLocationRelativeTo(null);
 		}
 		//this.dispose();
+		else if(scenario.equals("UpgradeWithoutServers"))
+		{
+			setVisible(false);
+			ProfDetails2 pd2 = new ProfDetails2("UpgradeWithoutServers");
+			pd2.setVisible(true);
+			pd2.setLocationRelativeTo(null);
+		}
+	}
+	public void testPerformed(ActionEvent evt)
+	{
+		
 	}
 	public void finishPerformed(ActionEvent evt)
 	{
-		if(scenario.equals("Upgrade"))
+		CMUtil.appServerInstallFolder = AppServerInstallt.getText();
+		CMUtil.appServerAdminPassword = AppServerAdminpasswordt.getText();
+		CMUtil.appServerAdminUser = AppServerAdminnamet.getText();
+		CMUtil.appServerSOAP = AppServerSOAPt.getText();
+		CMUtil.appServerCell = AppServerCellName.getSelectedItem().toString();
+		CMUtil.appServerTimeout = AppServerTimeoutt.getText();
+		CMUtil.appServerHostName = AppServerHostt.getText();
+		CMUtil.securityDomain = AppServerSecurity.getSelectedItem().toString();
+		CMUtil.appServerProfile = AppServerProfilet.getText();
+		CMUtil.turnOffSSL = "false";
+		if(TurnOffSSLc.isSelected())
+		  CMUtil.turnOffSSL = "true";
+		if(scenario.equals("UpgradeWithServers"))
 		{
 			String loadedFile = filePath+"\\"+CMUtil.profileName+"\\applicationserver.xml";
 			props.XmlDoc(loadedFile, (String)null);
@@ -580,7 +604,8 @@ public class WAS_FreshProfile extends JFrame {
 			if(result == JOptionPane.OK_OPTION)
 			{
 				setVisible(false);
-				new NewJFrame(CMUtil.profileName,"").makeUI();
+				NewJFrame nj = new NewJFrame(CMUtil.profileName,"");
+				nj.makeUI();
 	        }
 			else if (result == JOptionPane.CANCEL_OPTION)
 			{
@@ -591,6 +616,98 @@ public class WAS_FreshProfile extends JFrame {
 	            System.out.println("Wrong selection");
 	        }
 		}
+		if(scenario.equals("UpgradeWithoutServers"))
+		{
+			String consoleOP = exec(CMUtil.profileName);
+			String loadedFile = filePath+"\\"+CMUtil.profileName+"\\applicationserver.xml";
+			props.XmlDoc(loadedFile, (String)null);
+			Element doc1 = props.getDocElem();
+			props.setChildValueByName(doc1, PROPERTY, "ApplicationServerVersion", VALUE, CMUtil.appServerVersion);
+			props.setChildValueByName(doc1, PROPERTY, "ApplicationServerInstallationFolder", VALUE, CMUtil.appServerInstallFolder);
+			props.setChildValueByName(doc1, PROPERTY, "ApplicationServerAdminUsername", VALUE, CMUtil.appServerAdminUser);
+			props.setChildValueByName(doc1, PROPERTY, "ApplicationServerAdminPassword", VALUE, CMUtil.appServerAdminPassword);
+			props.setChildValueByName(doc1, PROPERTY, "ApplicationServerSoapPort", VALUE, CMUtil.appServerSOAP);
+			props.setChildValueByName(doc1, PROPERTY, "ApplicationServerHostName", VALUE, CMUtil.appServerHostName);
+			props.setChildValueByName(doc1, PROPERTY, "ApplicationServerTransactionTimeout", VALUE, CMUtil.appServerTimeout);
+			props.setChildValueByName(doc1, PROPERTY, "ApplicationServerProfileFolder", VALUE, CMUtil.appServerProfile);
+			props.setChildValueByName(doc1, PROPERTY, "ApplicationServerCell", VALUE, CMUtil.appServerCell);
+			props.setChildValueByName(doc1, PROPERTY, "TurnOffSSLCerticates", VALUE, CMUtil.turnOffSSL);
+			props.setChildValueByName(doc1, PROPERTY, "SecurityDomain", VALUE, CMUtil.securityDomain);
+			props.saveXMLDoc(loadedFile);
+			NewJFrame nj = new NewJFrame(CMUtil.profileName, consoleOP);
+	        nj.makeUI();
+	        dispose();
+		}
 	}
+	public String exec(String profName) 
+	{
+		StringBuffer sbout = new StringBuffer();
+    	String EMPTY_STRING = "";
+    	String command = EMPTY_STRING;
+		String jvmargs = EMPTY_STRING;
+		String arguments = EMPTY_STRING;
+		String workingDir = "C:\\Program Files\\IBM\\FileNet\\ContentEngine\\tools\\configure";
+		File workingDirf = new File(workingDir);
+		//arguments+= "\"" + script + "\"";
+		//jvmargs += " all com.filenet.gcd.LicenseModel ABCD";
+		//command = "wsadmin.bat" + arguments + jvmargs;
+		//command = "wsadmin.bat -conntype SOAP -port 8882 -host localhost -lang jython -f C:\\WASConnection\\WASConnect\\fetchcell.py";
+		if(CMUtil.appServer.startsWith("WebSphere")){
+			command = "configmgr_cl generateupgrade -appserver WebSphere -deploy "+CMUtil.deployMode+" -profile "+profName+" -pre551upgradeprofile false";
+		}
+		//else {
+			//command = "configmgr_cl generateconfig -appserver WebLogic -db "+CMUtil.dbType+" -ldap "+CMUtil.ldapServerType+" -license uvu -deploy standard -profile "+profName;
+		//}
+		
+		System.out.println(command);
+		//StringBuffer sbout = new StringBuffer();
+		
+		try {
+			Process p;
+
+			// if(CMUtil.isWinOS()) {
+			// Windows environment, proceed with old way
+			String cmdArray[] = new String[] { "cmd.exe", "/C", command };
+			ProcessBuilder pb = new ProcessBuilder(cmdArray);
+			pb.directory(workingDirf);
+			p = pb.start();
+
+			InputStream inputstream = p.getInputStream();
+			InputStream errorStream = p.getErrorStream();
+
+			//StringBuffer sbout = new StringBuffer();
+			StringBuffer sberr = new StringBuffer();
+
+			new OutputProcessor(inputstream, sbout);
+			new OutputProcessor(errorStream, sberr);
+
+			p.waitFor();
+			inputstream.close();
+			errorStream.close();
+			
+			//Copy existing working profile into new profile
+			/*String destProfPath = workingDir + File.separator + "profiles" + File.separator + profName;
+			File dstPath = new File(destProfPath);
+			String srcProfPath = workingDir + File.separator + "profiles" + File.separator + "2301swasprf";
+			File srcPath = new File (srcProfPath);
+			FileUtil.copyDirectory(srcPath, dstPath);
+			File srcFile = new File(dstPath+File.separator + profName+".cfgp");
+			File dstFile = new File(srcPath+File.separator + "2301swasprf.cfgp");
+			File orgcfgp = new File(dstPath + File.separator + "2301swasprf.cfgp");
+			FileUtil.copy(srcFile, dstFile);
+			//System.out.println(orgcfgp);
+			if (orgcfgp.exists() && orgcfgp.isFile())
+				orgcfgp.delete();
+			*/
+	    } catch (Exception ioe) {
+			// ecmdb00776196:
+			// when the process executing the command fails,
+			// it usually includes the command passed, which may contain the password in
+			// plain text
+			ioe.printStackTrace();
+			//String localizedMsg1 = ioe.getLocalizedMessage();
+	    }
+		return sbout.toString();
+    }
 }
 

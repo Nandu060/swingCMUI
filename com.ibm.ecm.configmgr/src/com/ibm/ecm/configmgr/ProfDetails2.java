@@ -29,8 +29,10 @@ public class ProfDetails2 extends javax.swing.JFrame {
     /**
      * Creates new form ProfDetails
      */
-    public ProfDetails2() {
+    public ProfDetails2(String scenario) {
+    	setTitle("Create New Installation Profile");
         initComponents();
+        CMUtil.scenario = scenario;
     }
 
     /**
@@ -49,20 +51,20 @@ public class ProfDetails2 extends javax.swing.JFrame {
         jLabel3 = new javax.swing.JLabel();
         jTextField2 = new javax.swing.JTextField();
         jLabel4 = new javax.swing.JLabel();
-        jComboBox1 = new javax.swing.JComboBox<>();
-        jButton1 = new javax.swing.JButton();
-        jButton2 = new javax.swing.JButton();
+        AppServerOptions = new javax.swing.JComboBox<>();
+        cancelBtn = new javax.swing.JButton();
+        nextBtn = new javax.swing.JButton();
         jLabel5 = new javax.swing.JLabel();
         jSeparator4 = new javax.swing.JSeparator();
         jLabel6 = new javax.swing.JLabel();
-        jComboBox2 = new javax.swing.JComboBox<>();
-        jButton3 = new javax.swing.JButton();
+        DatabaseOptions = new javax.swing.JComboBox<>();
+        BrowseBtn = new javax.swing.JButton();
         jLabel7 = new javax.swing.JLabel();
-        jComboBox3 = new javax.swing.JComboBox<>();
+        LDAPServerOptions = new javax.swing.JComboBox<>();
         jLabel8 = new javax.swing.JLabel();
-        jComboBox4 = new javax.swing.JComboBox<>();
+        LDAPRepoOptions = new javax.swing.JComboBox<>();
         jLabel9 = new javax.swing.JLabel();
-        jComboBox5 = new javax.swing.JComboBox<>();
+        DeploymentOptions = new javax.swing.JComboBox<>();
         jSeparator1 = new javax.swing.JSeparator();
         jSeparator2 = new javax.swing.JSeparator();
         jSeparator3 = new javax.swing.JSeparator();
@@ -111,11 +113,11 @@ public class ProfDetails2 extends javax.swing.JFrame {
         jLabel4.setToolTipText("Application server selection (Websphere/WebLogic)");
         String servers[] = { "WebSphere Application Server", "WebLogic Application Server" };
         
-        jComboBox1 = new JComboBox(servers);
+        AppServerOptions = new JComboBox(servers);
        // jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "WebSphere Application Server", "WebLogic Application Server" }));
         //jComboBox1.addItem("WebSphere Application Server");
         //jComboBox1.addItem("WebLogic Aplication Server");
-        jComboBox1.addActionListener(new java.awt.event.ActionListener() {
+        AppServerOptions.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jComboBox1ActionPerformed(evt);
             }
@@ -128,15 +130,15 @@ public class ProfDetails2 extends javax.swing.JFrame {
 			}
 		});
 		*/
-        jButton1.setText("Cancel");
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
+        cancelBtn.setText("Cancel");
+        cancelBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton1ActionPerformed(evt);
             }
         });
 
-        jButton2.setText("Next");
-        jButton2.addActionListener(new java.awt.event.ActionListener() {
+        nextBtn.setText("Next");
+        nextBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton2ActionPerformed(evt);
             }
@@ -171,21 +173,26 @@ public class ProfDetails2 extends javax.swing.JFrame {
         {
         	JOptionPane.showMessageDialog(rootPane, "Please select the application server !!!");
         }*/
-        jComboBox2.setToolTipText("");
-        jComboBox2.addItemListener(new java.awt.event.ItemListener() {
+        if(CMUtil.scenario.equals("UpgradeWithoutServers"))
+        {
+        	DatabaseOptions.setEnabled(false);
+        	jLabel6.setEnabled(false);
+        }
+        DatabaseOptions.setToolTipText("");
+        DatabaseOptions.addItemListener(new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
                 jComboBox2ItemStateChanged(evt);
             }
         });
-        jComboBox2.addActionListener(new java.awt.event.ActionListener() {
+        DatabaseOptions.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jComboBox2ActionPerformed(evt);
             }
         });
 
-        jButton3.setText("Browse");
-        jButton3.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
-        jButton3.addActionListener(new java.awt.event.ActionListener() {
+        BrowseBtn.setText("Browse");
+        BrowseBtn.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+        BrowseBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton3ActionPerformed(evt);
             }
@@ -194,10 +201,14 @@ public class ProfDetails2 extends javax.swing.JFrame {
         jLabel7.setText("LDAP Server:*");
         jLabel7.setToolTipText("");
         
-        jComboBox3.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Active Directory", "ADAM or AD LDS", "CA Directory", "eDirectory", "Oracle Internet Directory Server", "Oracle Directory Server Enterprise Edition", "Tivoli Directory Server", "Non-LDAP VMM" }));
-        jComboBox3.setSelectedIndex(6);
-        jComboBox3.addActionListener(new ActionListener() {
-			
+        if(CMUtil.scenario.equals("UpgradeWithoutServers"))
+        {
+        	LDAPServerOptions.setEnabled(false);
+        	jLabel7.setEnabled(false);
+        }
+        LDAPServerOptions.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Active Directory", "ADAM or AD LDS", "CA Directory", "eDirectory", "Oracle Internet Directory Server", "Oracle Directory Server Enterprise Edition", "Tivoli Directory Server", "Non-LDAP VMM" }));
+        LDAPServerOptions.setSelectedIndex(6);
+        LDAPServerOptions.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
@@ -208,17 +219,22 @@ public class ProfDetails2 extends javax.swing.JFrame {
         jLabel8.setText("LDAP Repository Type:*");
         jLabel8.setToolTipText("");
         
-        jComboBox4.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Federated repositories", "Stand-alone LDAP registry" }));
-        jComboBox4.setToolTipText("");
-        jLabel8.setEnabled(true);
-        jComboBox4.setEnabled(true);
-        jComboBox4.addItemListener(new java.awt.event.ItemListener() {
+        if(CMUtil.scenario.equals("UpgradeWithoutServers"))
+        {
+        	jLabel8.setEnabled(false);
+        	LDAPRepoOptions.setEnabled(false);
+        }
+        LDAPRepoOptions.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Federated repositories", "Stand-alone LDAP registry" }));
+        LDAPRepoOptions.setToolTipText("");
+        //jLabel8.setEnabled(true);
+        //LDAPRepoOptions.setEnabled(true);
+        LDAPRepoOptions.addItemListener(new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
                 jComboBox4ItemStateChanged(evt);
             }
         });
         
-        jComboBox4.addActionListener(new java.awt.event.ActionListener() {
+        LDAPRepoOptions.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jComboBox4ActionPerformed(evt);
             }
@@ -227,17 +243,18 @@ public class ProfDetails2 extends javax.swing.JFrame {
         jLabel9.setText("Deployment Mode");
         jLabel9.setToolTipText("");
 
-        jComboBox5.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Standard", "ND", "Cluster" }));
-        jComboBox5.setToolTipText("");
+        
+        DeploymentOptions.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Standard", "ND", "Cluster" }));
+        DeploymentOptions.setToolTipText("");
         jLabel9.setEnabled(true);
-        jComboBox5.setEnabled(true);
-        jComboBox5.addItemListener(new java.awt.event.ItemListener() {
+        //DeploymentOptions.setEnabled(true);
+        DeploymentOptions.addItemListener(new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
                 jComboBox5ItemStateChanged(evt);
             }
         });
         
-        jComboBox5.addActionListener(new java.awt.event.ActionListener() {
+        DeploymentOptions.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jComboBox5ActionPerformed(evt);
             }
@@ -255,7 +272,7 @@ public class ProfDetails2 extends javax.swing.JFrame {
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, 539, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jButton3)))
+                        .addComponent(BrowseBtn)))
                 .addGap(0, 0, Short.MAX_VALUE))
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -268,9 +285,9 @@ public class ProfDetails2 extends javax.swing.JFrame {
                         .addGap(0, 0, Short.MAX_VALUE)
                         .addComponent(backBtn)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jButton2)
+                        .addComponent(nextBtn)
                         .addPreferredGap(ComponentPlacement.RELATED)
-                        .addComponent(jButton1))
+                        .addComponent(cancelBtn))
                     .addComponent(jSeparator1, javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -291,15 +308,15 @@ public class ProfDetails2 extends javax.swing.JFrame {
                                     .addGroup(jPanel1Layout.createSequentialGroup()
                                         .addGap(9, 9, 9)
                                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                            .addComponent(jComboBox2, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                            .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 257, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                            .addComponent(DatabaseOptions, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                            .addComponent(AppServerOptions, javax.swing.GroupLayout.PREFERRED_SIZE, 257, javax.swing.GroupLayout.PREFERRED_SIZE))
                                         .addGap(71, 71, 71))
                                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                            .addComponent(jComboBox3, 0, 328, Short.MAX_VALUE)
-                                            .addComponent(jComboBox5, javax.swing.GroupLayout.PREFERRED_SIZE, 117, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                            .addComponent(jComboBox4, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))))
+                                            .addComponent(LDAPServerOptions, 0, 328, Short.MAX_VALUE)
+                                            .addComponent(DeploymentOptions, javax.swing.GroupLayout.PREFERRED_SIZE, 117, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                            .addComponent(LDAPRepoOptions, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))))
                             .addComponent(jLabel9, javax.swing.GroupLayout.PREFERRED_SIZE, 174, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
@@ -315,27 +332,27 @@ public class ProfDetails2 extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton3))
+                    .addComponent(BrowseBtn))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel4)
-                    .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(AppServerOptions, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jComboBox2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(DatabaseOptions, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel7)
-                    .addComponent(jComboBox3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(LDAPServerOptions, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel8, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jComboBox4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(LDAPRepoOptions, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel9, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jComboBox5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(DeploymentOptions, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 4, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -345,8 +362,8 @@ public class ProfDetails2 extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                 	.addComponent(backBtn)
-                    .addComponent(jButton2)
-                    .addComponent(jButton1))
+                    .addComponent(nextBtn)
+                    .addComponent(cancelBtn))
                 .addGap(19, 19, 19))
         );
 
@@ -396,7 +413,7 @@ public class ProfDetails2 extends javax.swing.JFrame {
     }       
     
     private void jComboBox3ActionPerformed(ActionEvent evt) {
-    	ldapServerType = jComboBox3.getSelectedItem().toString();
+    	ldapServerType = LDAPServerOptions.getSelectedItem().toString();
     	//CMUtil.ldapServerType = ldapServerType;
     	System.out.println(ldapServerType);
     	if(ldapServerType.equals("Active Directory"))
@@ -422,7 +439,7 @@ public class ProfDetails2 extends javax.swing.JFrame {
 
     private void jComboBox4ActionPerformed(java.awt.event.ActionEvent evt) {                                           
         // TODO add your handling code here:
-    	ldapRepoType = jComboBox4.getSelectedItem().toString();
+    	ldapRepoType = LDAPRepoOptions.getSelectedItem().toString();
     	//CMUtil.ldapRepoType = ldapRepoType;
     	System.out.println(ldapRepoType);
     	if(ldapRepoType.equals("Federated repositories"))
@@ -459,12 +476,14 @@ public class ProfDetails2 extends javax.swing.JFrame {
     	//"Microsoft JDBC Driver", "Oracle JDBC Driver", "Oracle JDBC Driver (RAC support)", 
     	//"Oracle JDBC Driver (SSL enabled)
     	String dbType="";
-    	dbType = jComboBox2.getSelectedItem().toString();
+    	dbType = DatabaseOptions.getSelectedItem().toString();
     	System.out.println(dbType);
     	if(dbType.equals("Oracle JDBC Driver"))
     		CMUtil.dbType = "oracle";
     	else if(dbType.startsWith("Microsoft JDBC Driver"))
     		CMUtil.dbType = "mssql";
+    	else if(dbType.startsWith("Microsoft JDBC Driver (SSL enabled)"))
+    		CMUtil.dbType = "mssqlssl";
     	else if(dbType.equals("DB2 Universal JDBC Driver"))
     		CMUtil.dbType = "db2";
     	else if(dbType.equals("DB2 for z/OS Universal JDBC Driver"))
@@ -487,7 +506,9 @@ public class ProfDetails2 extends javax.swing.JFrame {
     }                                           
 
     public void backActionPerformed(ActionEvent e) {
-    	new NewJFrame("","").setVisible(true);
+    	NewJFrame nj = new NewJFrame("","");
+    	nj.makeUI();
+    	nj.setVisible(true);
     	this.dispose();
     }
     
@@ -505,14 +526,39 @@ public class ProfDetails2 extends javax.swing.JFrame {
             //JOptionPane.showMessageDialog(rootPane, str);
             //SplitPanel obj= new SplitPanel(str);// obj created for class Second()
             //jButton2.setEnabled(true);
-            if (appServer.equals("WebSphere Application Server")) {
-	            new WAS_FreshProfile("Fresh").setVisible(true);
-	            this.dispose();
+            if (appServer.equals("WebSphere Application Server"))
+            {
+            	if(CMUtil.scenario.equals("Fresh"))
+            	{
+		            WAS_FreshProfile was = new WAS_FreshProfile("Fresh");
+		            was.setVisible(true);
+		            was.setLocationRelativeTo(null);
+		            this.dispose();
+            	}
+            	else if(CMUtil.scenario.equals("UpgradeWithoutServers"))
+            	{
+		            WAS_FreshProfile was = new WAS_FreshProfile("UpgradeWithoutServers");
+		            was.setVisible(true);
+		            was.setLocationRelativeTo(null);
+		            this.dispose();
+            	}
             }
-            else if(appServer.equals("WebLogic Application Server")) {
-            	WL_FreshProfile wl = new WL_FreshProfile("Fresh");
-            	wl.setVisible(true);
-            	this.dispose();
+            else if(appServer.equals("WebLogic Application Server")) 
+            {
+            	if(CMUtil.scenario.equals("Fresh"))
+            	{
+	            	WL_FreshProfile wl = new WL_FreshProfile("Fresh");
+	            	wl.setVisible(true);
+	            	wl.setLocationRelativeTo(null);
+	            	this.dispose();
+            	}
+            	if(CMUtil.scenario.equals("UpgradeWithoutServers"))
+            	{
+	            	WL_FreshProfile wl = new WL_FreshProfile("UpgradeWithoutServers");
+	            	wl.setVisible(true);
+	            	wl.setLocationRelativeTo(null);
+	            	this.dispose();
+            	}
             }
         }
     }                                        
@@ -546,7 +592,7 @@ public class ProfDetails2 extends javax.swing.JFrame {
 
     private void jComboBox5ActionPerformed(java.awt.event.ActionEvent evt) {                                           
         // TODO add your handling code here:
-    	String deployMode = jComboBox5.getSelectedItem().toString();
+    	String deployMode = DeploymentOptions.getSelectedItem().toString();
     	System.out.println(deployMode);
     	if(deployMode.equals("Standard"))
     		CMUtil.deployMode = "standard";
@@ -561,19 +607,25 @@ public class ProfDetails2 extends javax.swing.JFrame {
 
     private void jComboBox1ActionPerformed(java.awt.event.ActionEvent evt) {                                           
         // TODO add your handling code here:
-    	appServer = jComboBox1.getSelectedItem().toString();
-       if (appServer.equals("WebSphere Application Server")) {
+    	appServer = AppServerOptions.getSelectedItem().toString();
+        if(appServer.equals("WebSphere Application Server") && CMUtil.scenario.equals("Fresh")) 
+        {
         	jLabel9.setEnabled(true);
-        	jComboBox5.setEnabled(true);
+        	DeploymentOptions.setEnabled(true);
             jLabel8.setEnabled(true);
-            jComboBox4.setEnabled(true);
+            LDAPRepoOptions.setEnabled(true);
+        }
+        else if(appServer.equals("WebSphere Application Server") && CMUtil.scenario.equals("UpgradeWithoutServers"))
+        {
+        	jLabel9.setEnabled(true);
+        	DeploymentOptions.setEnabled(true);
         }
         else if(appServer.equals("WebLogic Application Server"))
         {
         	jLabel8.setEnabled(false);
-        	jComboBox4.setEnabled(false);
+        	LDAPRepoOptions.setEnabled(false);
             jLabel9.setEnabled(false);
-            jComboBox5.setEnabled(false);
+            DeploymentOptions.setEnabled(false);
         }
         CMUtil.appServer = appServer;
         System.out.println(CMUtil.appServer);
@@ -590,39 +642,39 @@ public class ProfDetails2 extends javax.swing.JFrame {
         {
         	JOptionPane.showMessageDialog(rootPane, "Please select the application server !!!");
         }*/
-    	int i = jComboBox1.getSelectedIndex();
-        jComboBox2.setModel(models[i]);
+    	int i = AppServerOptions.getSelectedIndex();
+        DatabaseOptions.setModel(models[i]);
     }                                         
 
     public void serverChanged(ItemEvent ev)
     {
-    	if(ev.getSource()==jComboBox1)
+    	if(ev.getSource()==AppServerOptions)
 		{
-			appServer = jComboBox1.getSelectedItem().toString();
+			appServer = AppServerOptions.getSelectedItem().toString();
 			System.out.println(appServer);
 			//jComboBox1.removeAllItems();
 			 if (appServer.equals("WebSphere Application Server")) {
 				 
 		        	jLabel9.setEnabled(true);
-		        	jComboBox5.setEnabled(true);
+		        	DeploymentOptions.setEnabled(true);
 		            jLabel8.setEnabled(true);
-		            jComboBox4.setEnabled(true);
-		            jComboBox2.removeAllItems();
+		            LDAPRepoOptions.setEnabled(true);
+		            DatabaseOptions.removeAllItems();
 		            for(int i=0;i<wasdb.length;i++)
 		            {
-		            	jComboBox2.addItem(wasdb[i]);
+		            	DatabaseOptions.addItem(wasdb[i]);
 		            }
 			 }
 			 else if(appServer.equals("WebLogic Application Server"))
 		        {
 		        	jLabel8.setEnabled(false);
-		        	jComboBox4.setEnabled(false);
+		        	LDAPRepoOptions.setEnabled(false);
 		            jLabel9.setEnabled(false);
-		            jComboBox5.setEnabled(false);
-		            jComboBox2.removeAllItems();
+		            DeploymentOptions.setEnabled(false);
+		            DatabaseOptions.removeAllItems();
 		            for(int i=0;i<wldb.length;i++)
 		            {
-		            	jComboBox2.addItem(wldb[i]);
+		            	DatabaseOptions.addItem(wldb[i]);
 		            }
 		        }
 			 else
@@ -636,7 +688,7 @@ public class ProfDetails2 extends javax.swing.JFrame {
     }
     
     public String dbtype () {
-        String dbtype = jComboBox2.getSelectedItem().toString();
+        String dbtype = DatabaseOptions.getSelectedItem().toString();
         return dbtype;
     }
     /**
@@ -677,15 +729,15 @@ public class ProfDetails2 extends javax.swing.JFrame {
 
     // Variables declaration - do not modify                     
     private javax.swing.JTextField ProfileName;
-    private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
-    private javax.swing.JButton jButton3;
+    private javax.swing.JButton cancelBtn;
+    private javax.swing.JButton nextBtn;
+    private javax.swing.JButton BrowseBtn;
     private JButton backBtn;
-    private javax.swing.JComboBox<String> jComboBox1;
-    private javax.swing.JComboBox<String> jComboBox2;
-    private javax.swing.JComboBox<String> jComboBox3;
-    private javax.swing.JComboBox<String> jComboBox4;
-    public javax.swing.JComboBox<String> jComboBox5;
+    private javax.swing.JComboBox<String> AppServerOptions;
+    private javax.swing.JComboBox<String> DatabaseOptions;
+    private javax.swing.JComboBox<String> LDAPServerOptions;
+    private javax.swing.JComboBox<String> LDAPRepoOptions;
+    public javax.swing.JComboBox<String> DeploymentOptions;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
@@ -704,7 +756,7 @@ public class ProfDetails2 extends javax.swing.JFrame {
     private String appServer;
     private String ldapRepoType;
     private String ldapServerType;
-    public String wasdb[] = { "DB2 Universal JDBC Driver", "DB2 for z/OS Universal JDBC Driver", "DB2 Universal JDBC Driver (pureScale)", "DB2 Universal JDBC Driver (HADR)", "Microsoft JDBC Driver", "Oracle JDBC Driver", "Oracle JDBC Driver (RAC support)", "Oracle JDBC Driver (SSL enabled)" };
+    public String wasdb[] = { "DB2 Universal JDBC Driver", "DB2 for z/OS Universal JDBC Driver", "DB2 Universal JDBC Driver (pureScale)", "DB2 Universal JDBC Driver (HADR)", "Microsoft JDBC Driver","Microsoft JDBC Driver (SSL Enabled)", "Oracle JDBC Driver", "Oracle JDBC Driver (RAC support)", "Oracle JDBC Driver (SSL enabled)" };
     public String wldb[] = { "DB2 Universal JDBC Driver", "Microsoft JDBC Driver", "Oracle JDBC Driver", "Oracle JDBC Driver (RAC support)", "Oracle JDBC Driver (SSL enabled)" };
     private ComboBoxModel[] models = new ComboBoxModel[2];
     // End of variables declaration                   

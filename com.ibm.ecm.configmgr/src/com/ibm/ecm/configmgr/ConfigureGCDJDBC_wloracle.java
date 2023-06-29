@@ -38,6 +38,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import com.ibm.Factory.PropertyFactory;
+import com.ibm.ecm.configmgr.ConfigureGCDJDBC_wasoracle.executeTask;
 
 public class ConfigureGCDJDBC_wloracle extends JPanel {
 	private JTextField JDBCDSNamet;
@@ -202,7 +203,7 @@ public class ConfigureGCDJDBC_wloracle extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
-				
+				testActionPerformed(e);
 			}
 		});
 		
@@ -314,10 +315,10 @@ public class ConfigureGCDJDBC_wloracle extends JPanel {
 					.addGap(250)
 					.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
 						.addGroup(groupLayout.createSequentialGroup()
-							.addGap(260)
+							.addGap(280)
 							.addComponent(runBtn, GroupLayout.PREFERRED_SIZE, 117, GroupLayout.PREFERRED_SIZE))
 						.addGroup(groupLayout.createSequentialGroup()
-							.addGap(150)
+							.addGap(175)
 							.addComponent(saveBtn, GroupLayout.PREFERRED_SIZE, 100, GroupLayout.PREFERRED_SIZE))
 						.addComponent(testBtn)))
 		);
@@ -534,8 +535,91 @@ public class ConfigureGCDJDBC_wloracle extends JPanel {
     
     //protected abstract String getDbProperties(String dbuser, String dbserver, String dbport, String dbname);
     	
+    public void testActionPerformed(ActionEvent e)
+    {
+    	executeTask exe = new executeTask();
+    	String console = exe.test();
+    	ConsoleOP.appendText(console);
+    }
     	
-    	
+    public class executeTask extends ConfigureWLGCDJDBC
+	{
+		
+		public String test() 
+	    {
+	    	String script = "C:\\Program Files\\IBM\\FileNet\\ContentEngine\\tools\\configure\\scripts\\testWASDBConnection.tcl";
+	        String tempFile = "C:\\Program Files\\IBM\\FileNet\\ContentEngine\\tools\\configure\\tmp";
+	        System.out.println("Hello");
+	        String result = testWork();
+	                	    	
+	    	String EMPTY_STRING = "";
+	    	String command = EMPTY_STRING;
+			//String jvmargs = EMPTY_STRING;
+			//String arguments = EMPTY_STRING;
+			String workingDir = "C:\\Program Files\\IBM\\FileNet\\ContentEngine\\tools\\configure";
+			File workingDirf = new File(workingDir);
+			
+			command = "configmgr_cl test -task configurejdbcgcd -profile "+CMUtil.profileName;
+			System.out.println(command);
+			StringBuffer sbout = new StringBuffer();
+			
+			try {
+				Process p;
+	
+				// if(CMUtil.isWinOS()) {
+				// Windows environment, proceed with old way
+				String cmdArray[] = new String[] { "cmd.exe", "/C", command };
+				ProcessBuilder pb = new ProcessBuilder(cmdArray);
+				pb.directory(workingDirf);
+				p = pb.start();
+	
+				InputStream inputstream = p.getInputStream();
+				InputStream errorStream = p.getErrorStream();
+	
+				//StringBuffer sbout = new StringBuffer();
+				StringBuffer sberr = new StringBuffer();
+	
+				new OutputProcessor(inputstream, sbout);
+				new OutputProcessor(errorStream, sberr);
+	
+				p.waitFor();
+				inputstream.close();
+				errorStream.close();
+		    } catch (Exception ioe) {
+				// ecmdb00776196:
+				// when the process executing the command fails,
+				// it usually includes the command passed, which may contain the password in
+				// plain text
+				ioe.printStackTrace();
+				//String localizedMsg1 = ioe.getLocalizedMessage();
+		    }
+			return sbout.toString();
+		}
+
+		@Override
+		protected String getDbType() {
+			// TODO Auto-generated method stub
+			return DB_TYPE;
+		}
+
+		@Override
+		protected String getDbDriverName() {
+			// TODO Auto-generated method stub
+			return DB_DRIVER_NAME;
+		}
+
+		@Override
+		protected String getDbUrl(String dbserver, String dbport, String dbname) {
+			// TODO Auto-generated method stub
+			return getOracleUrl(dbserver, dbport, dbname);
+		}
+
+		@Override
+		protected String getDbTestTable() {
+			// TODO Auto-generated method stub
+			return DB_TEST_TABLE;
+		}
+	}
     
 }
 

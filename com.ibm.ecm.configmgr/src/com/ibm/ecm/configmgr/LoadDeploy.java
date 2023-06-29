@@ -98,7 +98,7 @@ public class LoadDeploy {
 				return depcl;
 			}
 		}
-		else if((CMUtil.appServer.equals("weblogic"))||CMUtil.appServer.startsWith("WebLogic"))
+		else if((CMUtil.appServer.equals("weblogic"))||(CMUtil.appServer.startsWith("WebLogic"))||(CMUtil.appServer.startsWith("Oracle")))
 		{
 			AppName = props.getChildValueByName(doc1, PROPERTY, "ApplicationName", VALUE);
 			Script = props.getChildValueByName(doc1, PROPERTY, "Script", VALUE);

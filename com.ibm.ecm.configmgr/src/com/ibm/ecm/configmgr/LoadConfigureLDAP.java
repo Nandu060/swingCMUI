@@ -22,7 +22,7 @@ public class LoadConfigureLDAP {
 
 	public String LDServerHost,LDServerPort,LDBindDN,LDBindPass,LDBaseDN,LDUserFilter,LDGrFilter,LDUserID,
 	LDGrID,LDAdmin,Overwrite,ActiveUser,Script,SSLEnabled,LDAPDisplay,j16,
-	j17,j18,j19,LDAPUB,LDAPGB,LDUserNFilter,LDGroupNFilter,LDUserAttr,LDStaticAttr,j26,j27;
+	j17,j18,LDAPUB,LDAPGB,LDUserNFilter,LDGroupNFilter,LDUserAttr,LDStaticAttr,j26,j27;
 	public String BaseEntryDN, Login, FedRepo, WSFedRepoID, WSFedBaseDN,GrMemName, GrMemScope;
 	public JPanel defaultPanel = new JPanel();
 	private ConfigureLDAP_wasjdbcgeneralst conf;
@@ -97,7 +97,7 @@ public class LoadConfigureLDAP {
 				return conf2;
 			}
 		}
-		else if((CMUtil.appServer.equals("weblogic"))||CMUtil.appServer.startsWith("WebLogic"))
+		else if((CMUtil.appServer.equals("weblogic"))||(CMUtil.appServer.startsWith("WebLogic"))||(CMUtil.appServer.startsWith("Oracle")))
 		{
 			LDAPDisplay = props.getChildValueByName(doc1, PROPERTY, "LDAPDisplayName", VALUE);
 			LDServerHost = props.getChildValueByName(doc1, PROPERTY, "LDAPServerHost", VALUE);

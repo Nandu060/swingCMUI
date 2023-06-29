@@ -71,9 +71,9 @@ public class NewJFrame extends javax.swing.JFrame {
         profileNameSelected = profileName;
         initComponents(profileNameSelected);
          if (!profileName.equals(""))
-        	jTree1.setVisible(true);
+        	TasksTree.setVisible(true);
         else
-        	jTree1.setVisible(false);
+        	TasksTree.setVisible(false);
         
         //textArea1.setText(console);
          //consoleOP.appendText(console);
@@ -99,7 +99,7 @@ public class NewJFrame extends javax.swing.JFrame {
         jSplitPane1 = new javax.swing.JSplitPane();
         jPanel10 = new javax.swing.JPanel();
         jScrollPane3 = new javax.swing.JScrollPane();
-        jTree1 = new javax.swing.JTree();
+        TasksTree = new javax.swing.JTree();
         jPanel11 = new javax.swing.JPanel();
         jPanel12 = new javax.swing.JPanel();
         jScrollPane5 = new javax.swing.JScrollPane();
@@ -117,39 +117,52 @@ public class NewJFrame extends javax.swing.JFrame {
         Upgrade = new JMenuItem();
         Edit = new JMenuItem();
         Close = new JMenuItem();
-        jMenu2 = new javax.swing.JMenu();
-        jMenu3 = new javax.swing.JMenu();
+        WindowMenu = new javax.swing.JMenu();
+        HelpMenu = new javax.swing.JMenu();
         popMenu = new JPopupMenu();
         consoleOP = new ConsoleOP();
         System.out.println("App server is "+CMUtil.appServer);
-        jTree1.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1), "Tasks"));
-        DefaultMutableTreeNode treeNode1 = new DefaultMutableTreeNode(profName);
-        DefaultMutableTreeNode treeNode2 = new DefaultMutableTreeNode("Configure GCD JDBC DataSources");
-        treeNode1.add(treeNode2);
-        treeNode2 = new DefaultMutableTreeNode("Configure Object Store JDBC DataSources");
-        treeNode1.add(treeNode2);
-        if((CMUtil.appServer.equalsIgnoreCase("websphere"))||(CMUtil.appServer.startsWith("WebSphere"))) {
-        treeNode2 = new DefaultMutableTreeNode("Configure Login Modules");
-        treeNode1.add(treeNode2);
+        TasksTree.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1), "Tasks"));
+        DefaultMutableTreeNode rootNode = new DefaultMutableTreeNode(profName);
+        if(CMUtil.scenario.equals("Fresh"))
+        {
+	        DefaultMutableTreeNode subNode = new DefaultMutableTreeNode("Configure GCD JDBC DataSources");
+	        rootNode.add(subNode);
+	        subNode = new DefaultMutableTreeNode("Configure Object Store JDBC DataSources");
+	        rootNode.add(subNode);
+	        if((CMUtil.appServer.equalsIgnoreCase("websphere"))||(CMUtil.appServer.startsWith("WebSphere"))) {
+	        subNode = new DefaultMutableTreeNode("Configure Login Modules");
+	        rootNode.add(subNode);
+	        }
+	        subNode = new DefaultMutableTreeNode("Configure LDAP");
+	        rootNode.add(subNode);
+	        subNode = new DefaultMutableTreeNode("Deploy Application");
+	        rootNode.add(subNode);
         }
-        treeNode2 = new DefaultMutableTreeNode("Configure LDAP");
-        treeNode1.add(treeNode2);
-        treeNode2 = new DefaultMutableTreeNode("Deploy Application");
-        treeNode1.add(treeNode2);
-        jTree1.setModel(new DefaultTreeModel(treeNode1));;
-        jTree1.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
-        jTree1.setDragEnabled(true);
-        jTree1.setDropMode(DropMode.ON);
-        jTree1.setEditable(true);
-        jTree1.setLargeModel(true);
-        jTree1.setMinimumSize(new java.awt.Dimension(50, 50));
-        jTree1.setShowsRootHandles(true);
-        jTree1.addMouseListener(new MouseAdapter(){
+        else if(CMUtil.scenario.equals("UpgradeWithoutServers"))
+        {
+        	if((CMUtil.appServer.equalsIgnoreCase("websphere"))||(CMUtil.appServer.startsWith("WebSphere"))) 
+        	{
+        		DefaultMutableTreeNode subNode = new DefaultMutableTreeNode("Configure Login Modules");
+        		rootNode.add(subNode);
+        	}
+        	DefaultMutableTreeNode subNode = new DefaultMutableTreeNode("Deploy Application");
+        	rootNode.add(subNode);
+        }
+        TasksTree.setModel(new DefaultTreeModel(rootNode));;
+        TasksTree.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+        TasksTree.setDragEnabled(true);
+        TasksTree.setDropMode(DropMode.ON);
+        TasksTree.setEditable(true);
+        TasksTree.setLargeModel(true);
+        TasksTree.setMinimumSize(new java.awt.Dimension(50, 50));
+        TasksTree.setShowsRootHandles(true);
+        TasksTree.addMouseListener(new MouseAdapter(){
             public void mouseClicked(MouseEvent evt) {
                 ProfileNameMouseClicked(evt);
             }
         });
-        jTree1.addMouseListener(new MouseListener() {
+        TasksTree.addMouseListener(new MouseListener() {
 			
 			@Override
 			public void mouseReleased(MouseEvent e) {
@@ -181,7 +194,7 @@ public class NewJFrame extends javax.swing.JFrame {
 				
 			}
 		});
-        jTree1.addTreeSelectionListener(new TreeSelectionListener() {
+        TasksTree.addTreeSelectionListener(new TreeSelectionListener() {
             public void valueChanged(TreeSelectionEvent evt){
                 ProfileNameValueChanged(evt);
             }
@@ -250,7 +263,7 @@ public class NewJFrame extends javax.swing.JFrame {
         jSplitPane1.setOneTouchExpandable(true);
         //jSplitPane1.setDividerLocation((int)jPanel10.getMinimumSize().getWidth());
 
-        jScrollPane3.setViewportView(jTree1);
+        jScrollPane3.setViewportView(TasksTree);
 
         javax.swing.GroupLayout jPanel10Layout = new javax.swing.GroupLayout(jPanel10);
         jPanel10.setLayout(jPanel10Layout);
@@ -356,7 +369,10 @@ public class NewJFrame extends javax.swing.JFrame {
         New.addActionListener(new ActionListener(){
             public void actionPerformed(java.awt.event.ActionEvent evt)
             {
-                new ProfDetails2().setVisible(true);
+            	CMUtil.scenario = "Fresh";
+                ProfDetails2 pd = new ProfDetails2(CMUtil.scenario);
+                pd.setVisible(true);
+                pd.setLocationRelativeTo(null);
                 dispose();
             }
         }
@@ -430,11 +446,11 @@ public class NewJFrame extends javax.swing.JFrame {
 
         MenuBar.add(FileMenu);
 
-        jMenu2.setText("Window");
-        MenuBar.add(jMenu2);
+        WindowMenu.setText("Window");
+        MenuBar.add(WindowMenu);
 
-        jMenu3.setText("Help");
-        MenuBar.add(jMenu3);
+        HelpMenu.setText("Help");
+        MenuBar.add(HelpMenu);
 
         setJMenuBar(MenuBar);
 
@@ -524,11 +540,11 @@ public class NewJFrame extends javax.swing.JFrame {
     {
         try{
         	
-            DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode)jTree1.getSelectionPath().getLastPathComponent();
+            DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode)TasksTree.getSelectionPath().getLastPathComponent();
             int selectedNodeIndex = selectedNode.getParent().getIndex(selectedNode);
             String selectedNodeName = selectedNode.getUserObject().toString();
             System.out.println(selectedNodeName);
-            TreeSelectionModel model = jTree1.getSelectionModel();
+            TreeSelectionModel model = TasksTree.getSelectionModel();
             if (model.getSelectionCount() > 0) {
                 System.out.println(selectedNodeIndex);
                 switch (selectedNodeName) {
@@ -538,6 +554,7 @@ public class NewJFrame extends javax.swing.JFrame {
                     	if(panel1IsOpen.equals(false)) {
                     	panel1IsOpen = true;
                         String loadedFile = filePath+"\\"+profileNameSelected+"\\configurejdbcgcd.xml";
+                        System.out.println(loadedFile);
                         LoadGCD_JDBC lpd = new LoadGCD_JDBC();
                         jPanel5 = lpd.loadFromFile(new File(loadedFile));
                         jTabbedPane1.addTab(selectedNodeName, jPanel5);
@@ -633,7 +650,7 @@ public class NewJFrame extends javax.swing.JFrame {
     {
     	if(SwingUtilities.isRightMouseButton(evt))
     	{
-    		popMenu.show(jTree1, evt.getX(), evt.getY());
+    		popMenu.show(TasksTree, evt.getX(), evt.getY());
     	}
     }
     public void ProfileNameValueChanged(TreeSelectionEvent evt)
@@ -646,7 +663,7 @@ public class NewJFrame extends javax.swing.JFrame {
         Hashtable<String, Object> hashtable = new Hashtable<String, Object>();
         hashtable.put (profileName, new String[]{"Configure GCD JDBC DataSources", "Configure Object Store JDBC DataSources", "Configure Login Modules", "Configure LDAP", "Deploy Application"});
         JTree.DynamicUtilTreeNode.createChildren(root, hashtable);
-        jTree1.setVisible(true);
+        TasksTree.setVisible(true);
     }
     public void openActionPerformed(ActionEvent evt)
     {
@@ -696,6 +713,7 @@ public class NewJFrame extends javax.swing.JFrame {
     	File file = new File("C:\\Program Files\\IBM\\FileNet\\ContentEngine\\Servers.xml");
     	if(file.exists())
     	{
+    		CMUtil.scenario = "UpgradeWithServers";
     		Upgrade_Configuration uc = new Upgrade_Configuration();
         	uc.setVisible(true);
         	uc.setLocationRelativeTo(null);
@@ -703,10 +721,35 @@ public class NewJFrame extends javax.swing.JFrame {
     	}
     	else
     	{
-    		UpgradeConfiguration_server ucs = new UpgradeConfiguration_server();
-        	ucs.setVisible(true);
-        	ucs.setLocationRelativeTo(null);
-        	setVisible(false);
+    		CMUtil.scenario = "UpgradeWithoutServers";
+    		String msg = new String("Configuration Manager did not find information related to your existing Content Engine.\n"
+    				+ "You can proceed by verifying and completing all the required fields in the upgrade wizard\n"
+    				+ "and then completing the required upgrade tasks. If you are uncertain about what information\n"
+    				+ "to enter, refer to the Upgrading and  configuring Content Platform Engine topic in the online\n"
+    				+ "documentation : \nhttps://www.ibm.com/docs/en/filenet-p8-platform/5.5.11?topic=p8-upgrading-configuring-\ncontent-platform-engine.\n"
+    				+ "\n\nDo you want to continue?");
+    		int result = JOptionPane.showConfirmDialog(this, msg, "Action Required",
+    	               JOptionPane.YES_NO_OPTION,
+    	               JOptionPane.QUESTION_MESSAGE);
+    		if(result == JOptionPane.YES_OPTION)
+    		{
+    			ProfDetails2 pd = new ProfDetails2(CMUtil.scenario);
+    			pd.setVisible(true);
+    			pd.setLocationRelativeTo(null);
+    			setVisible(false);
+    			/*UpgradeConfiguration_server ucs = new UpgradeConfiguration_server();
+            	ucs.setVisible(true);
+            	ucs.setLocationRelativeTo(null);
+            	setVisible(false);*/
+            }
+    		else if (result == JOptionPane.NO_OPTION)
+    		{
+               
+            }
+    		else 
+    		{
+                System.out.println("Wrong selection");
+            }
     	}
     }
     public void closeActionPerformed(ActionEvent evt)
@@ -776,8 +819,8 @@ public class NewJFrame extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JMenu FileMenu;
-    private javax.swing.JMenu jMenu2;
-    private javax.swing.JMenu jMenu3;
+    private javax.swing.JMenu WindowMenu;
+    private javax.swing.JMenu HelpMenu;
     private javax.swing.JMenuBar MenuBar;
     private javax.swing.JMenuItem New;
     private javax.swing.JMenuItem Open;
@@ -807,7 +850,7 @@ public class NewJFrame extends javax.swing.JFrame {
     private JButton btnClose;
     //private javax.swing.JTextArea textArea1;
     private ConsoleOP consoleOP;
-    private javax.swing.JTree jTree1;
+    private javax.swing.JTree TasksTree;
     private JFileChooser fileChooser;
     private File file1;
     PropertyFactory props = new PropertyFactory();

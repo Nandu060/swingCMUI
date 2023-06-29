@@ -58,7 +58,8 @@ public class CMUtil {
 	public static String NAME = "name";
 	public static String CONFIGURATION = "configuration";
 	public static String VALUE = "value";
-	
+	public static String scenario = "Fresh";
+	public static boolean isCmuiClient = false;
 	
 	
 	public static boolean isWinOS()

@@ -106,7 +106,7 @@ public class ConfigureLogin extends JPanel {
 				props.XmlDoc(file.toString(), (String)null);
 				Element doc1 = props.getDocElem();
 				props.setChildValueByName(doc1, PROPERTY, "Script", VALUE, textField.getText());
-				props.setChildValueByName(doc1, PROPERTY, "tempDir", VALUE, textField_1.getText());
+				//props.setChildValueByName(doc1, PROPERTY, "tempDir", VALUE, textField_1.getText());
 				props.saveXMLDoc(file.toString());
 				String[] names = props.getElementNamesByTagName(doc1, PROPERTY);
 				for(int i=0;i<names.length;i++)

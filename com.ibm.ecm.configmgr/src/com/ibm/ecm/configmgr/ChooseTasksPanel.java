@@ -36,6 +36,7 @@ public class ChooseTasksPanel extends javax.swing.JFrame {
 
 	StringBuffer sbout = new StringBuffer();
 	private static String appServer;
+	private static String scenario;
 	public static String PROPERTY = "property";
 	public static String NAME = "name";
 	public static String CONFIGURATION = "configuration";
@@ -44,8 +45,9 @@ public class ChooseTasksPanel extends javax.swing.JFrame {
     /**
      * Creates new form ChooseTasksPanel
      */
-    public ChooseTasksPanel(String appServer) {
+    public ChooseTasksPanel(String appServer, String scenario) {
     	this.appServer = appServer;
+    	this.scenario = scenario;
         initComponents();
     }
 
@@ -272,19 +274,23 @@ public class ChooseTasksPanel extends javax.swing.JFrame {
 			//System.out.println(names[i]);
 			System.out.println(props.getChildValueByName(doc1, PROPERTY, names[i], VALUE));
 		}
-        new NewJFrame(profName, consoleOP).setVisible(true);
-        
+        NewJFrame nj = new NewJFrame(profName, consoleOP);
+        nj.makeUI();
         dispose();
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
         // TODO add your handling code here:
     	if(appServer.equals("WebLogic Application Server")) {
-    		new WL_FreshProfile(appServer).setVisible(true);
+    		WL_FreshProfile wl = new WL_FreshProfile(scenario);
+    		wl.setVisible(true);
+    		wl.setLocationRelativeTo(null);
     		dispose();
     	}
     	else if(appServer.equals("WebSphere Application Server")) {
-    		new WAS_FreshProfile(appServer).setVisible(true);
+    		WAS_FreshProfile was = new WAS_FreshProfile(scenario);
+    		was.setVisible(true);
+    		was.setLocationRelativeTo(null);
             dispose();
     	}
     }//GEN-LAST:event_jButton4ActionPerformed
@@ -394,7 +400,7 @@ public class ChooseTasksPanel extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new ChooseTasksPanel(appServer).setVisible(true);
+                new ChooseTasksPanel(appServer,scenario).setVisible(true);
             }
         });
     }

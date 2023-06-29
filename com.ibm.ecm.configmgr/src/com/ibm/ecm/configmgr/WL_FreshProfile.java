@@ -13,6 +13,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
@@ -91,9 +92,10 @@ public class WL_FreshProfile extends JFrame {
 		setBounds(100, 100, 638, 656);
 		setResizable(false);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		if(scenario.equals("Fresh"))
+		System.out.println(scenario);
+		if(scenario.equals("Fresh")||scenario.equals("UpgradeWithoutServers"))
 			setTitle("Create New Installation Profile");
-		else if(scenario.equals("Upgrade"))
+		else if(scenario.equals("UpgradeWithServers"))
 		{
 			setTitle("Upgrade Configuration Profile");
 			if(!CMUtil.profileName.equals(""))
@@ -242,7 +244,7 @@ public class WL_FreshProfile extends JFrame {
 		        AppServerDomaint.setText(profAPath);
 			}
 		});
-		AppServerDomaint.setText(CMUtil.appServerDomain);
+		//AppServerDomaint.setText(CMUtil.appServerDomain);
 		
 		JLabel lblNewLabel_10 = props.setLabel("Target name* :"); //new JLabel("Target name* :");
 		
@@ -295,7 +297,7 @@ public class WL_FreshProfile extends JFrame {
 		});
 		
 		JButton nextBtn = props.getButton("Next>"); //new JButton("Next>");
-		if(scenario.equals("Upgrade"))
+		if(scenario.equals("UpgradeWithServers")||scenario.equals("UpgradeWithoutServers"))
 			nextBtn.setEnabled(false);
 		nextBtn.addActionListener(new ActionListener() {
 			@Override
@@ -508,31 +510,49 @@ public class WL_FreshProfile extends JFrame {
 			  res = "true";
 		CMUtil.SSLEnabled = res;
 		setVisible(false);
-		ChooseTasksPanel ctp = new ChooseTasksPanel(CMUtil.appServer);
+		ChooseTasksPanel ctp = new ChooseTasksPanel(CMUtil.appServer,CMUtil.scenario);
 		ctp.setVisible(true);
 		ctp.setLocationRelativeTo(null);
         //this.dispose();
 	}
 	public void backPerformed(ActionEvent ev)
 	{
-		if(scenario.equals("Upgrade"))
+		if(scenario.equals("UpgradeWithServers"))
 		{
 			setVisible(false);
 			UpgradeConfiguration_server ucs = new UpgradeConfiguration_server();
 			ucs.setVisible(true);
 			ucs.setLocationRelativeTo(null);
 		}
+		else if(scenario.equals("UpgradeWithoutServers"))
+		{
+			setVisible(false);
+			ProfDetails2 pd2 = new ProfDetails2("UpgradeWithoutServers");
+			pd2.setVisible(true);
+			pd2.setLocationRelativeTo(null);
+		}
 		else if(scenario.equals("Fresh"))
 		{
 			setVisible(false);
-			ProfDetails2 pd2 = new ProfDetails2();
+			ProfDetails2 pd2 = new ProfDetails2("Fresh");
 			pd2.setVisible(true);
 			pd2.setLocationRelativeTo(null);
 		}
 	}
 	public void finishPerformed(ActionEvent evt)
 	{
-		if(scenario.equals("Upgrade"))
+		CMUtil.appServerInstallFolder = AppServerInstallt.getText();
+		CMUtil.appServerAdminPassword = AppServerAdminPasswordt.getText();
+		CMUtil.appServerAdminUser = AppServerAdminNamet.getText();
+		CMUtil.appServerSOAP = AppServerSoapt.getText();
+		CMUtil.appServerTimeout = AppServerTimeoutt.getText();
+		CMUtil.appServerHostName = AppServerHostt.getText();
+		CMUtil.appServerDomain = AppServerDomaint.getText();
+		String res = "false";
+		if(AppServerSSLEnabledc.isSelected())
+			  res = "true";
+		CMUtil.SSLEnabled = res;
+		if(scenario.equals("UpgradeWithServers"))
 		{
 			String loadedFile = filePath+"\\"+CMUtil.profileName+"\\applicationserver.xml";
 			props.XmlDoc(loadedFile, (String)null);
@@ -573,6 +593,97 @@ public class WL_FreshProfile extends JFrame {
 	            System.out.println("Wrong selection");
 	        }
 		}
+		else if(scenario.equals("UpgradeWithoutServers"))
+		{
+			String consoleOP = exec(CMUtil.profileName);
+			String loadedFile = filePath+"\\"+CMUtil.profileName+"\\applicationserver.xml";
+			props.XmlDoc(loadedFile, (String)null);
+			Element doc1 = props.getDocElem();
+			props.setChildValueByName(doc1, PROPERTY, "ApplicationServerVersion", VALUE, CMUtil.appServerVersion);
+			props.setChildValueByName(doc1, PROPERTY, "ApplicationServerInstallationFolder", VALUE, CMUtil.appServerInstallFolder);
+			props.setChildValueByName(doc1, PROPERTY, "ApplicationServerAdminUsername", VALUE, CMUtil.appServerAdminUser);
+			props.setChildValueByName(doc1, PROPERTY, "ApplicationServerAdminPassword", VALUE, CMUtil.appServerAdminPassword);
+			props.setChildValueByName(doc1, PROPERTY, "ApplicationServerSoapPort", VALUE, CMUtil.appServerSOAP);
+			props.setChildValueByName(doc1, PROPERTY, "ApplicationServerHostName", VALUE, CMUtil.appServerHostName);
+			props.setChildValueByName(doc1, PROPERTY, "ApplicationServerTransactionTimeout", VALUE, CMUtil.appServerTimeout);
+			props.setChildValueByName(doc1, PROPERTY, "ApplicationServerDomainDirectory", VALUE, CMUtil.appServerDomain);
+			props.setChildValueByName(doc1, PROPERTY, "TargetName", VALUE, CMUtil.targetName);
+			props.setChildValueByName(doc1, PROPERTY, "ApplicationServerSSLEnabled", VALUE, CMUtil.SSLEnabled);
+			props.saveXMLDoc(loadedFile);
+			NewJFrame nj = new NewJFrame(CMUtil.profileName, consoleOP);
+	        nj.makeUI();
+	        dispose();
+		}
 	}
+	public String exec(String profName) 
+	{
+		StringBuffer sbout = new StringBuffer();
+    	String EMPTY_STRING = "";
+    	String command = EMPTY_STRING;
+		String jvmargs = EMPTY_STRING;
+		String arguments = EMPTY_STRING;
+		String workingDir = "C:\\Program Files\\IBM\\FileNet\\ContentEngine\\tools\\configure";
+		File workingDirf = new File(workingDir);
+		//arguments+= "\"" + script + "\"";
+		//jvmargs += " all com.filenet.gcd.LicenseModel ABCD";
+		//command = "wsadmin.bat" + arguments + jvmargs;
+		//command = "wsadmin.bat -conntype SOAP -port 8882 -host localhost -lang jython -f C:\\WASConnection\\WASConnect\\fetchcell.py";
+		if(CMUtil.appServer.startsWith("WebLogic")){
+			command = "configmgr_cl generateupgrade -appserver WebLogic -deploy standard -profile "+profName+" -pre551upgradeprofile false";
+		}
+		//else {
+			//command = "configmgr_cl generateconfig -appserver WebLogic -db "+CMUtil.dbType+" -ldap "+CMUtil.ldapServerType+" -license uvu -deploy standard -profile "+profName;
+		//}
+		
+		System.out.println(command);
+		//StringBuffer sbout = new StringBuffer();
+		
+		try {
+			Process p;
+
+			// if(CMUtil.isWinOS()) {
+			// Windows environment, proceed with old way
+			String cmdArray[] = new String[] { "cmd.exe", "/C", command };
+			ProcessBuilder pb = new ProcessBuilder(cmdArray);
+			pb.directory(workingDirf);
+			p = pb.start();
+
+			InputStream inputstream = p.getInputStream();
+			InputStream errorStream = p.getErrorStream();
+
+			//StringBuffer sbout = new StringBuffer();
+			StringBuffer sberr = new StringBuffer();
+
+			new OutputProcessor(inputstream, sbout);
+			new OutputProcessor(errorStream, sberr);
+
+			p.waitFor();
+			inputstream.close();
+			errorStream.close();
+			
+			//Copy existing working profile into new profile
+			/*String destProfPath = workingDir + File.separator + "profiles" + File.separator + profName;
+			File dstPath = new File(destProfPath);
+			String srcProfPath = workingDir + File.separator + "profiles" + File.separator + "2301swasprf";
+			File srcPath = new File (srcProfPath);
+			FileUtil.copyDirectory(srcPath, dstPath);
+			File srcFile = new File(dstPath+File.separator + profName+".cfgp");
+			File dstFile = new File(srcPath+File.separator + "2301swasprf.cfgp");
+			File orgcfgp = new File(dstPath + File.separator + "2301swasprf.cfgp");
+			FileUtil.copy(srcFile, dstFile);
+			//System.out.println(orgcfgp);
+			if (orgcfgp.exists() && orgcfgp.isFile())
+				orgcfgp.delete();
+			*/
+	    } catch (Exception ioe) {
+			// ecmdb00776196:
+			// when the process executing the command fails,
+			// it usually includes the command passed, which may contain the password in
+			// plain text
+			ioe.printStackTrace();
+			//String localizedMsg1 = ioe.getLocalizedMessage();
+	    }
+		return sbout.toString();
+    }
 }
 

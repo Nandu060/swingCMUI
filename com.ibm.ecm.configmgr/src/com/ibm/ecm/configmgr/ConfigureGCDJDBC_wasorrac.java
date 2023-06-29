@@ -19,6 +19,7 @@ import javax.swing.JSeparator;
 import javax.swing.JTextField;
 
 import com.ibm.Factory.PropertyFactory;
+import com.ibm.ecm.configmgr.ConfigureGCDJDBC_wasdb2zos.executeTask;
 
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -195,7 +196,7 @@ public class ConfigureGCDJDBC_wasorrac extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
-				
+				testActionPerformed(e);
 			}
 		});
 		
@@ -644,7 +645,8 @@ public class ConfigureGCDJDBC_wasorrac extends JPanel {
 			ex.printStackTrace();
 		}
 	}
-	private static void TokenizeOracleRACUrl(String WSOracleRACUrl){
+	private static void TokenizeOracleRACUrl(String WSOracleRACUrl)
+	{
 		wsoracleracurl = new StringTokenizer(WSOracleRACUrl, ":,");
 		nodes = wsoracleracurl.countTokens()/2;
 		DATABASE_SERVER_NAME_RAC_NODES = new String[nodes];
@@ -653,6 +655,71 @@ public class ConfigureGCDJDBC_wasorrac extends JPanel {
 		for(int i=0;wsoracleracurl.hasMoreTokens();i++) {
 			DATABASE_SERVER_NAME_RAC_NODES[i]=wsoracleracurl.nextToken();
 			DATABASE_PORT_NUMBER_RAC_NODES[i]=wsoracleracurl.nextToken();
+		}
+	}
+	public void testActionPerformed(ActionEvent evt)
+    {
+    	executeTask exe = new executeTask();
+    	String console = exe.test();
+    	ConsoleOP.appendText(console);
+    }
+    
+    public class executeTask extends ConfigureWSGCDJDBC
+	{
+		protected String getJDBCtype() {
+			// TODO Auto-generated method stub
+			return JDBC_TYPE;
+		}
+		
+	    public String test() 
+	    {
+	    	String script = "C:\\Program Files\\IBM\\FileNet\\ContentEngine\\tools\\configure\\scripts\\testWASDBConnection.tcl";
+	        String tempFile = "C:\\Program Files\\IBM\\FileNet\\ContentEngine\\tools\\configure\\tmp";
+	        System.out.println("Hello");
+	        String result = testWork();
+	                	    	
+	    	String EMPTY_STRING = "";
+	    	String command = EMPTY_STRING;
+			//String jvmargs = EMPTY_STRING;
+			//String arguments = EMPTY_STRING;
+			String workingDir = "C:\\Program Files\\IBM\\FileNet\\ContentEngine\\tools\\configure";
+			File workingDirf = new File(workingDir);
+			
+			command = "configmgr_cl test -task configurejdbcgcd -profile "+CMUtil.profileName;
+			System.out.println(command);
+			StringBuffer sbout = new StringBuffer();
+			
+			try {
+				Process p;
+	
+				// if(CMUtil.isWinOS()) {
+				// Windows environment, proceed with old way
+				String cmdArray[] = new String[] { "cmd.exe", "/C", command };
+				ProcessBuilder pb = new ProcessBuilder(cmdArray);
+				pb.directory(workingDirf);
+				p = pb.start();
+	
+				InputStream inputstream = p.getInputStream();
+				InputStream errorStream = p.getErrorStream();
+	
+				//StringBuffer sbout = new StringBuffer();
+				StringBuffer sberr = new StringBuffer();
+	
+				new OutputProcessor(inputstream, sbout);
+				new OutputProcessor(errorStream, sberr);
+	
+				p.waitFor();
+				inputstream.close();
+				errorStream.close();
+		    } catch (Exception ioe) {
+				// ecmdb00776196:
+				// when the process executing the command fails,
+				// it usually includes the command passed, which may contain the password in
+				// plain text
+				ioe.printStackTrace();
+				//String localizedMsg1 = ioe.getLocalizedMessage();
+		    }
+			return sbout.toString();
 		}
 	}
 }

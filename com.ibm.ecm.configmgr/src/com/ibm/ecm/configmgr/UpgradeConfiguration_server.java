@@ -277,14 +277,14 @@ public class UpgradeConfiguration_server extends JFrame {
 		if(CMUtil.upgradeAppServer.contains("WebSphere"))
 		{
 			setVisible(false);
-			WAS_FreshProfile wsf = new WAS_FreshProfile("Upgrade");
+			WAS_FreshProfile wsf = new WAS_FreshProfile("UpgradeWithServers");
 			wsf.setVisible(true);
 			wsf.setLocationRelativeTo(null);
 		}
 		else
 		{
 			setVisible(false);
-			WL_FreshProfile wlf = new WL_FreshProfile("Upgrade");
+			WL_FreshProfile wlf = new WL_FreshProfile("UpgradeWithServers");
 			wlf.setVisible(true);
 			wlf.setLocationRelativeTo(null);
 		}

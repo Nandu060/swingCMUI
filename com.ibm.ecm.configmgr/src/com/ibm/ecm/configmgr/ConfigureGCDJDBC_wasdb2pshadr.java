@@ -22,6 +22,7 @@ import javax.swing.GroupLayout.Alignment;
 import org.w3c.dom.Element;
 
 import com.ibm.Factory.PropertyFactory;
+import com.ibm.ecm.configmgr.ConfigureGCDJDBC_wassql.executeTask;
 
 public class ConfigureGCDJDBC_wasdb2pshadr extends JPanel {
 	private JTextField JDBCDSNamet;
@@ -60,7 +61,7 @@ public class ConfigureGCDJDBC_wasdb2pshadr extends JPanel {
 	private static StringTokenizer ServerPorturl;
 	private static int Count;
 	private static String Server,Port;
-
+	
 	/**
 	 * Create the panel.
 	 */
@@ -222,7 +223,15 @@ public class ConfigureGCDJDBC_wasdb2pshadr extends JPanel {
 			}
 		});
 		
-		JButton btnNewButton_3 = new JButton("Test Database Connection");
+		JButton testBtn = props.getButton("Test Database Connection"); 
+		testBtn.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				testActionPerformed(e);
+			}
+		});
+		
 		GroupLayout groupLayout = new GroupLayout(this);
 		groupLayout.setHorizontalGroup(
 			groupLayout.createParallelGroup(Alignment.LEADING)
@@ -307,7 +316,7 @@ public class ConfigureGCDJDBC_wasdb2pshadr extends JPanel {
 					.addComponent(separator_1, GroupLayout.PREFERRED_SIZE, 873, GroupLayout.PREFERRED_SIZE))
 				.addGroup(groupLayout.createSequentialGroup()
 					.addGap(432)
-					.addComponent(btnNewButton_3, GroupLayout.PREFERRED_SIZE, 200, GroupLayout.PREFERRED_SIZE)
+					.addComponent(testBtn, GroupLayout.PREFERRED_SIZE, 200, GroupLayout.PREFERRED_SIZE)
 					.addGap(11)
 					.addComponent(saveBtn, GroupLayout.PREFERRED_SIZE, 84, GroupLayout.PREFERRED_SIZE)
 					.addGap(7)
@@ -401,7 +410,7 @@ public class ConfigureGCDJDBC_wasdb2pshadr extends JPanel {
 					.addComponent(separator_1, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
 					.addGap(22)
 					.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
-						.addComponent(btnNewButton_3)
+						.addComponent(testBtn)
 						.addComponent(saveBtn)
 						.addComponent(runBtn)))
 		);
@@ -615,5 +624,70 @@ public class ConfigureGCDJDBC_wasdb2pshadr extends JPanel {
     	}
     	
     }
+	public void testActionPerformed(ActionEvent evt)
+    {
+    	executeTask exe = new executeTask();
+    	String console = exe.test();
+    	ConsoleOP.appendText(console);
+    }
+    
+    public class executeTask extends ConfigureWSGCDJDBC
+	{
+		protected String getJDBCtype() {
+			// TODO Auto-generated method stub
+			return JDBC_TYPE;
+		}
+		
+	    public String test() 
+	    {
+	    	String script = "C:\\Program Files\\IBM\\FileNet\\ContentEngine\\tools\\configure\\scripts\\testWASDBConnection.tcl";
+	        String tempFile = "C:\\Program Files\\IBM\\FileNet\\ContentEngine\\tools\\configure\\tmp";
+	        System.out.println("Hello");
+	        String result = testWork();
+	                	    	
+	    	String EMPTY_STRING = "";
+	    	String command = EMPTY_STRING;
+			//String jvmargs = EMPTY_STRING;
+			//String arguments = EMPTY_STRING;
+			String workingDir = "C:\\Program Files\\IBM\\FileNet\\ContentEngine\\tools\\configure";
+			File workingDirf = new File(workingDir);
+			
+			command = "configmgr_cl test -task configurejdbcgcd -profile "+CMUtil.profileName;
+			System.out.println(command);
+			StringBuffer sbout = new StringBuffer();
+			
+			try {
+				Process p;
+	
+				// if(CMUtil.isWinOS()) {
+				// Windows environment, proceed with old way
+				String cmdArray[] = new String[] { "cmd.exe", "/C", command };
+				ProcessBuilder pb = new ProcessBuilder(cmdArray);
+				pb.directory(workingDirf);
+				p = pb.start();
+	
+				InputStream inputstream = p.getInputStream();
+				InputStream errorStream = p.getErrorStream();
+	
+				//StringBuffer sbout = new StringBuffer();
+				StringBuffer sberr = new StringBuffer();
+	
+				new OutputProcessor(inputstream, sbout);
+				new OutputProcessor(errorStream, sberr);
+	
+				p.waitFor();
+				inputstream.close();
+				errorStream.close();
+		    } catch (Exception ioe) {
+				// ecmdb00776196:
+				// when the process executing the command fails,
+				// it usually includes the command passed, which may contain the password in
+				// plain text
+				ioe.printStackTrace();
+				//String localizedMsg1 = ioe.getLocalizedMessage();
+		    }
+			return sbout.toString();
+		}
+	}
 }
 

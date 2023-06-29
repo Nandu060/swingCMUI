@@ -33,6 +33,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import com.ibm.Factory.PropertyFactory;
+import com.ibm.ecm.configmgr.ConfigureGCDJDBC_wassql.executeTask;
 
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -87,6 +88,8 @@ public class ConfigureGCDJDBC_wasoracle extends JPanel {
 	private static final String TCL_EXT = ".tcl"; //$NON-NLS-1$
 	private static final String SLASH = "/"; //$NON-NLS-1$
 	private static final String JDBC_ORACLE_THIN = "jdbc:oracle:thin:@";
+	
+	public String jdbcProviderName,jdbcType ;
 
 	/**
 	 * Create the panel.
@@ -216,7 +219,7 @@ public class ConfigureGCDJDBC_wasoracle extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
-				
+				testActionPerformed(e);
 			}
 		});
 		
@@ -252,6 +255,8 @@ public class ConfigureGCDJDBC_wasoracle extends JPanel {
 					//System.out.println(names[i]);
 					System.out.println(props.getChildValueByName(doc1, PROPERTY, names[i], VALUE));
 				}	 
+				jdbcType = JDBC_TYPE;
+		        jdbcProviderName = ORACLE;
 			}
 		});
 		
@@ -544,8 +549,7 @@ public class ConfigureGCDJDBC_wasoracle extends JPanel {
         String applicationServerCell = CMUtil.appServerCell; //WebsphereUtil.escapeSpecialChar(getEnvironmentCMProperties().getValue(ConfigKeys.APPLICATION_SERVER_CELL).trim());
         boolean turnoffSSLcerts = Boolean.parseBoolean(CMUtil.turnOffSSL); //getEnvironmentCMProperties().getValue(ConfigKeys.TURNOFF_SSL_CERTIFICATE));
 
-        String jdbcType = JDBC_TYPE;
-        String jdbcProviderName = ORACLE;
+        
         
         //20484
         boolean sslEnabled = false;
@@ -664,4 +668,389 @@ public class ConfigureGCDJDBC_wasoracle extends JPanel {
 		}
     	
     }
+    public void testActionPerformed(ActionEvent evt)
+    {
+    	executeTask exe = new executeTask();
+    	String console = exe.test();
+    	ConsoleOP.appendText(console);
+    }
+    public class executeTask extends ConfigureWSGCDJDBC
+	{
+		protected String getJDBCtype() {
+			// TODO Auto-generated method stub
+			return jdbcType;
+		}
+		
+		public String test() 
+	    {
+	    	String script = "C:\\Program Files\\IBM\\FileNet\\ContentEngine\\tools\\configure\\scripts\\testWASDBConnection.tcl";
+	        String tempFile = "C:\\Program Files\\IBM\\FileNet\\ContentEngine\\tools\\configure\\tmp";
+	        System.out.println("Hello");
+	        String result = testWork();
+	                	    	
+	    	String EMPTY_STRING = "";
+	    	String command = EMPTY_STRING;
+			//String jvmargs = EMPTY_STRING;
+			//String arguments = EMPTY_STRING;
+			String workingDir = "C:\\Program Files\\IBM\\FileNet\\ContentEngine\\tools\\configure";
+			File workingDirf = new File(workingDir);
+			
+			command = "configmgr_cl test -task configurejdbcgcd -profile "+CMUtil.profileName;
+			System.out.println(command);
+			StringBuffer sbout = new StringBuffer();
+			
+			try {
+				Process p;
+	
+				// if(CMUtil.isWinOS()) {
+				// Windows environment, proceed with old way
+				String cmdArray[] = new String[] { "cmd.exe", "/C", command };
+				ProcessBuilder pb = new ProcessBuilder(cmdArray);
+				pb.directory(workingDirf);
+				p = pb.start();
+	
+				InputStream inputstream = p.getInputStream();
+				InputStream errorStream = p.getErrorStream();
+	
+				//StringBuffer sbout = new StringBuffer();
+				StringBuffer sberr = new StringBuffer();
+	
+				new OutputProcessor(inputstream, sbout);
+				new OutputProcessor(errorStream, sberr);
+	
+				p.waitFor();
+				inputstream.close();
+				errorStream.close();
+		    } catch (Exception ioe) {
+				// ecmdb00776196:
+				// when the process executing the command fails,
+				// it usually includes the command passed, which may contain the password in
+				// plain text
+				ioe.printStackTrace();
+				//String localizedMsg1 = ioe.getLocalizedMessage();
+		    }
+			return sbout.toString();
+		}
+	}
+    /*public String test() 
+    {
+    	String script = "C:\\Program Files\\IBM\\FileNet\\ContentEngine\\tools\\configure\\scripts\\testWASDBConnection.tcl";
+        String tempFile = "C:\\Program Files\\IBM\\FileNet\\ContentEngine\\tools\\configure\\tmp";
+        System.out.println("Hello");
+        String result = testWork(script, tempFile);
+                	    	
+    	String EMPTY_STRING = "";
+    	String command = EMPTY_STRING;
+		//String jvmargs = EMPTY_STRING;
+		//String arguments = EMPTY_STRING;
+		String workingDir = "C:\\Program Files\\IBM\\FileNet\\ContentEngine\\tools\\configure";
+		File workingDirf = new File(workingDir);
+		
+		command = "configmgr_cl test -task configurejdbcgcd -profile "+CMUtil.profileName;
+		System.out.println(command);
+		StringBuffer sbout = new StringBuffer();
+		
+		try {
+			Process p;
+
+			// if(CMUtil.isWinOS()) {
+			// Windows environment, proceed with old way
+			String cmdArray[] = new String[] { "cmd.exe", "/C", command };
+			ProcessBuilder pb = new ProcessBuilder(cmdArray);
+			pb.directory(workingDirf);
+			p = pb.start();
+
+			InputStream inputstream = p.getInputStream();
+			InputStream errorStream = p.getErrorStream();
+
+			//StringBuffer sbout = new StringBuffer();
+			StringBuffer sberr = new StringBuffer();
+
+			new OutputProcessor(inputstream, sbout);
+			new OutputProcessor(errorStream, sberr);
+
+			p.waitFor();
+			inputstream.close();
+			errorStream.close();
+	    } catch (Exception ioe) {
+			// ecmdb00776196:
+			// when the process executing the command fails,
+			// it usually includes the command passed, which may contain the password in
+			// plain text
+			ioe.printStackTrace();
+			//String localizedMsg1 = ioe.getLocalizedMessage();
+	    }
+		return sbout.toString();
+	}
+    public final String testWork(String script, String wsTclRuntime)
+    {
+        String test_result = EMPTY_STRING;
+        String test_result1 = EMPTY_STRING;
+        String test_result2 = EMPTY_STRING;
+        String jdbcDataSourceName = EMPTY_STRING;
+        String jdbcDataSourceXAName = EMPTY_STRING;
+        //final String _6 = "6"; //$NON-NLS-1$
+        boolean non_XA_exist = false;
+        boolean XA_exist = false;
+        boolean dsSSL = false; //20484
+        System.out.println(DBUserNamet.getText());
+        System.out.println(props.getValue(DBUserNamet));
+        //WebSphereJMXInvoker invoker = new WebSphereJMXInvoker(JMXParametersResolver.getWebSphereConnectionParameters(getEnvironmentCMProperties()));
+        try 
+        {	
+        	System.out.println("Hi");
+        	//first test the datasources names
+        	System.out.println(JDBCDSNamet.getText());
+        	System.out.println(props.getValue(JDBCDSNamet));
+        	jdbcDataSourceName = JDBCDSNamet.getText(); //getTaskCMProperties().getValue(ConfigKeys.JDBC_DATASOURCE_NAME);
+        	jdbcDataSourceXAName = JDBCDSXANamet.getText(); //getTaskCMProperties().getValue(ConfigKeys.JDBC_DATASOURCE_XA_NAME);
+        	System.out.println(jdbcDataSourceName + "," + jdbcDataSourceXAName);
+            //test_result1 = invoker.testDataSourceNameExists(jdbcDataSourceName);
+        	//test_result2 = invoker.testDataSourceNameExists(jdbcDataSourceXAName);
+        	
+        	/*if (test_result1.equalsIgnoreCase(TRUE)||test_result1.equalsIgnoreCase(FALSE))
+        	{
+                non_XA_exist = Boolean.valueOf(test_result1).booleanValue();
+            	XA_exist = Boolean.valueOf(test_result2).booleanValue();
+            	
+            	// DTS 912139 - If one exist and not the other, it is an error.
+            	// If both don't exist or both exist, go to actually test the connection.
+            	if (non_XA_exist && !XA_exist)
+            	{
+            		String message = Messages.bind(Messages.NOT_BOTH_DATASOURCE_EXIST,jdbcDataSourceName,jdbcDataSourceXAName);
+            		return Messages.bind (Messages.TESTING_DATASOURCE_NAMES_ERROR, message);
+            	}
+            	else if (!non_XA_exist && XA_exist)
+            	{
+            		String message = Messages.bind(Messages.NOT_BOTH_DATASOURCE_EXIST,jdbcDataSourceXAName,jdbcDataSourceName);
+            		return Messages.bind (Messages.TESTING_DATASOURCE_NAMES_ERROR, message);
+            	}
+        	}
+        	else
+        		return test_result1;
+        	
+        	//test the database connection
+            //String applicationServerVersion = getEnvironmentCMProperties().getValue(ConfigKeys.APPLICATION_SERVER_VERSION);
+            //String majorVersion = applicationServerVersion.substring(0, applicationServerVersion.indexOf("."));//$NON-NLS-1$
+             * 
+             
+        	System.out.println(jdbcProviderName);
+        	String dbdriver = jdbcProviderName; //getTaskCMProperties().getValue(ConfigKeys.JDBC_DRIVER_NAME);
+        	//if (dbdriver.contains("SSL enabled")) dbdriver = "OracleSSL";
+        	if (dbdriver.contains("SSL")) dbdriver = "OracleSSL";//21053
+            System.out.println(dbdriver);
+            String databaseUsername = DBUserNamet.getText(); //getTaskCMProperties().getValue(ConfigKeys.DATABASE_USERNAME).trim();
+            String databasePassword = DBPasswordt.getText(); //getTaskCMProperties().getValue(ConfigKeys.DATABASE_PASSWORD);
+            String databaseName = DBNamet.getText(); //getTaskCMProperties().getValue(ConfigKeys.DATABASE_NAME);
+            //changes for defect 3470 start
+            boolean databaseServiceNameOracleSet = Boolean.parseBoolean(props.getValue(OrServiceNamec)); //getTaskCMProperties().getValue(ConfigKeys.ORACLE_DATABASE_SERVICE_NAME_CHECK_BOX));
+            //changes for defect 3470 end
+            String databaseServerName = props.getValue(DBServert); //getTaskCMProperties().getValue(ConfigKeys.DATABASE_SERVER_NAME);
+            String databasePortNumber = props.getValue(DBPortt); //getTaskCMProperties().getValue(ConfigKeys.DATABASE_PORT_NUMBER);
+            String databaseVersion = ""; //getTaskCMProperties().getValue(ConfigKeys.DATABASE_VERSION);
+            String jdbcDriverVersion = ""; //getTaskCMProperties().getValue(ConfigKeys.JDBC_DRIVER_VERSION);
+            //changes for defect 3470  start
+           	String odbcjarname = props.getValue(comboBox); //WebsphereUtil.escapeSpecialChar(getTaskCMProperties().getValue(ConfigKeys.ODBC_JAR_NAME));
+           	//changes for defect 3470 end
+            //changes for defect 9654 start
+           	//String mssqljarname = WebsphereUtil.escapeSpecialChar(getTaskCMProperties().getValue(ConfigKeys.MSSQL_JAR_NAME));
+            //changes for defect 9654 end
+            String driverImplementation = EMPTY_STRING; 
+            String driverPath =EMPTY_STRING; 
+            String driverType =EMPTY_STRING;//DB2 - only 
+            String url = EMPTY_STRING;//Oracle - only 
+            
+            //20484                
+            if ((CMUtil.isCmuiClient) && ((dbdriver).equalsIgnoreCase("OracleSSL")))
+            	dsSSL = true;
+            	//dsSSL = Boolean.parseBoolean(getTaskCMProperties().getValue(ConfigKeys.SSL_ENABLED));//Oracle - only 20484
+            System.out.println(dsSSL);
+            System.out.println(jdbcType);
+            switch (Integer.parseInt(jdbcType))
+            {
+                case 3:
+                	//driverType="4";//10.2
+                	//if (mssqljarname.contains("10.2")) 
+                	driverType="3";//41669
+                    driverImplementation = "com.microsoft.sqlserver.jdbc.SQLServerConnectionPoolDataSource"; //$NON-NLS-1$
+                    // majorVersion 7 and 8 and 8.5
+                    //if (jdbcDriverVersion.equals("2.0")||jdbcDriverVersion.equals("3.0") ||jdbcDriverVersion.equals("4.0"))
+                    //driverPath = "${MICROSOFT_JDBC_DRIVER_PATH}/"+mssqljarname; //$NON-NLS-1$
+                    break;	
+                case 4:
+                    driverImplementation = "oracle.jdbc.pool.OracleConnectionPoolDataSource"; //$NON-NLS-1$
+                    url = "jdbc:oracle:thin:@"+ databaseServerName+ ":" +databasePortNumber+ ":"+ databaseName; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                    driverType="4"; //$NON-NLS-1$ - 36220
+                    // majorVersion is  7 or 8 or 8.5
+                    if (databaseVersion.equalsIgnoreCase("Oracle 10g")) //$NON-NLS-1$
+                           driverPath = "${ORACLE_JDBC_DRIVER_PATH}/ojdbc14.jar"; //$NON-NLS-1$
+                    else
+                          driverPath = "${ORACLE_JDBC_DRIVER_PATH}/"+odbcjarname; //$NON-NLS-1$
+                    //changes for defect 3470 start
+                    if(databaseServiceNameOracleSet)
+                    {
+                    	url = "jdbc:oracle:thin:@//"+ databaseServerName+ ":" +databasePortNumber+ "/"+ databaseName;
+                    	//driverPath = "${ORACLE_JDBC_DRIVER_PATH}/ojdbc6.jar";  
+                    	//change for task 5710
+                    	driverPath = "${ORACLE_JDBC_DRIVER_PATH}/"+odbcjarname;
+                    }
+                   //changes for defect 3470 end
+                    
+                   // 20484
+                   if (dsSSL)
+                   {
+                	    url = "jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS=(PROTOCOL=TCPS)(HOST="+databaseServerName+")(PORT="+databasePortNumber+"))(CONNECT_DATA=(SERVICE_NAME="+ databaseName+")))";
+                	    driverPath = "${ORACLE_JDBC_DRIVER_PATH}/"+odbcjarname;                    	   
+                   }
+                   
+                   break;
+                case 5:
+                    driverType="4"; //$NON-NLS-1$
+                    driverImplementation = "com.ibm.db2.jcc.DB2ConnectionPoolDataSource"; //$NON-NLS-1$
+                    if (jdbcDriverVersion.equals("3.0")){
+                    	driverPath = "${DB2UNIVERSAL_JDBC_DRIVER_PATH}/db2jcc.jar;${DB2UNIVERSAL_JDBC_DRIVER_PATH}/db2jcc_license_cu.jar"; //$NON-NLS-1$
+                    } else {
+                    	driverPath = "${DB2_JCC_DRIVER_PATH}/db2jcc4.jar; ${DB2_JCC_DRIVER_PATH}/db2jcc_license_cu.jar";
+                    }
+                    break;
+                case 6:
+                    driverType="4"; //$NON-NLS-1$
+                    driverImplementation = "com.ibm.db2.jcc.DB2ConnectionPoolDataSource"; //$NON-NLS-1$
+                    if (jdbcDriverVersion.equals("3.0")){
+                		driverPath = "${DB2UNIVERSAL_JDBC_DRIVER_PATH}/db2jcc.jar;${DB2UNIVERSAL_JDBC_DRIVER_PATH}/db2jcc_license_cu.jar;${DB2UNIVERSAL_JDBC_DRIVER_PATH}/db2jcc_license_cisuz.jar"; //$NON-NLS-1$
+                	} else {
+                		driverPath = "${DB2_JCC_DRIVER_PATH}/db2jcc4.jar;${DB2_JCC_DRIVER_PATH}/db2jcc_license_cu.jar;${DB2_JCC_DRIVER_PATH}/db2jcc_license_cisuz.jar"; //$NON-NLS-1$	
+                	}
+                    break;
+           }
+            //if (!dsSSL) 
+            //{
+        	    //if (driverType.equals("3"))
+            		//test_result = testDataBaseConnection(databaseUsername, databasePassword, databaseName, databaseServerName, databasePortNumber, driverType, databaseVersion, jdbcDriverVersion, databaseServiceNameOracleSet, odbcjarname, mssqljarname, url);
+            	//else 
+				//{
+					//if (CMUtil.isGUI)
+					//{
+						//test_result = invoker.testDBConnection(driverImplementation, databaseUsername, databasePassword, databaseName, databaseServerName, databasePortNumber, driverPath, driverType, url);
+					//}
+					//else
+						test_result = testDBDSConnection(databaseUsername, databasePassword, databaseName, databaseServerName, databasePortNumber, driverType, databaseVersion, jdbcDriverVersion, url, jdbcDataSourceName, jdbcDataSourceXAName, odbcjarname, script, wsTclRuntime); //jarType,
+				//}
+            //}
+            //else
+            	//test_result = testDBConnection(databaseUsername, databasePassword, databaseName, databaseServerName, databasePortNumber, odbcjarname, jdbcDataSourceName, jdbcDataSourceXAName);
+        }
+        
+        catch(Exception e) {
+            test_result = e.getLocalizedMessage();
+            //LOGGER.exception(e.getLocalizedMessage(), e, this.getClass().getName(), "testWork()"); //$NON-NLS-1$
+        }
+        if (test_result.startsWith("DSRA8040I") && (dsSSL))
+        	test_result = "Failed to connect to the Database. Please check: a. if SSL enabled is checked or b. Check the database parameters";
+
+        /*if (non_XA_exist && XA_exist)
+        {
+        	return test_result + ' ' + Messages.bind(Messages.BOTH_DATASOURCE_EXIST,jdbcDataSourceName,jdbcDataSourceXAName );           	                
+        }
+        return test_result;
+   }
+    public String testDBDSConnection(String user, String password, String dbname, String dbServer, String port, String driverType, String databaseVersion, String jdbcDriverVersion, String url, String jdbcDataSourceName, String jdbcDataSourceXAName, String ojdbcjarType, String script, String wsTclRuntime ) //String jarName, 
+    {
+    	String strEOL = CMUtil.getPlatformEOL();
+        String result = strEOL;
+        try
+        {
+            String QUOTE = "\""; //$NON-NLS-1$
+            //String DOT ="."; //$NON-NLS-1$
+            //String JDBC_ORACLE_THIN = "jdbc:oracle:thin:@"; //$NON-NLS-1$
+
+            String tempDir = wsTclRuntime; //wsgetTaskCMProperties().getValue(ConfigKeys.TEMP_DIR);
+        	//File testTclFile = new File (script); //getTaskCMProperties().getValue(ConfigKeys.SCRIPT));
+        	//String testTclParent = testTclFile.getParent();//+ File.separator + DOT + DOT + File.separator + "testDBConnect.tcl";
+        	//String wsTclScript  = testTclParent + File.separator + "testWASDBConnection.tcl";
+            String wsTclScript = script;
+        	//System.out.println("wsTclScript path = " + wsTclScript);
+        	//File testTclScript = new File(wsTclScript);
+        	wsTclRuntime = tempDir+ SLASH + "testWASDBConnect.tcl";
+            boolean dbconnect = false;
+            
+			FileReader inFR = new FileReader(wsTclScript);
+			BufferedReader inBR = new BufferedReader(inFR);
+			FileWriter outFW = new FileWriter(wsTclRuntime);
+			
+			outFW.write("set _aliasName " + QUOTE + user + QUOTE+ strEOL);//$NON-NLS-1$ 
+			outFW.write("set _aliasPassword " + QUOTE + password + QUOTE+ strEOL);//$NON-NLS-1$ 
+			outFW.write("set _dbName " + QUOTE + dbname + QUOTE+ strEOL);//$NON-NLS-1$ 
+			outFW.write("set _dbServerName " + QUOTE + dbServer + QUOTE+ strEOL);//$NON-NLS-1$ 
+			outFW.write("set _portNumber " + QUOTE + port + QUOTE+ strEOL);//$NON-NLS-1$    			
+			outFW.write("set _jdbcProviderType " + QUOTE + driverType + QUOTE + strEOL);//$NON-NLS-1$    		
+			outFW.write("set _dbVersion " + QUOTE + databaseVersion + QUOTE + strEOL);//$NON-NLS-1$    		
+			outFW.write("set _driverVersion " + QUOTE + jdbcDriverVersion + QUOTE + strEOL);//$NON-NLS-1$
+			outFW.write("set _dsURL " + QUOTE + url + QUOTE + strEOL);//$NON-NLS-1$
+			//outFW.write("set _jarType " + QUOTE + jarName + QUOTE + strEOL);//$NON-NLS-1$
+			outFW.write("set _dsName " + QUOTE + jdbcDataSourceName + QUOTE + strEOL);//$NON-NLS-1$
+			outFW.write("set _dsXAName " + QUOTE + jdbcDataSourceXAName + QUOTE + strEOL);//$NON-NLS-1$  
+			outFW.write("set _odbcjarType " + QUOTE + ojdbcjarType + QUOTE + strEOL);
+			//outFW.write("set _mssqljarType " + QUOTE + mssqljarType + QUOTE + strEOL);
+			outFW.write("set _oracleRacUrl " + QUOTE + QUOTE + strEOL);
+			outFW.write("set _oracleServiceNameURL " + QUOTE + QUOTE + strEOL);
+			//outFW.write("set _dsSSL " + QUOTE + dsSSL + QUOTE + strEOL);//$NON-NLS-1$
+			outFW.write(strEOL);
+
+			String aLine;
+			while ((aLine=inBR.readLine()) != null)
+					outFW.write(aLine+ strEOL);
+			
+			inFR.close();
+			inBR.close();
+			outFW.close();
+			
+            String tclLog =  tempDir+ File.separator + "testWASDBConnection.log";
+                                            
+            //WebsphereUtil.runScript(AppServerParametersResolver.getWebsphereScriptRunningConnectionParameters(getEnvironmentCMProperties()), wsTclRuntime,tclLog);
+
+            //if (!dbconnect)
+            //{
+                String output = strEOL;
+                inFR = new FileReader(tclLog);
+                inBR = new BufferedReader(inFR);
+                while (((aLine=inBR.readLine()) != null) && (!aLine.equals("")))
+                {
+            		output = aLine + strEOL;
+                //	if (aLine.indexOf(Messages.DATABASE_CONNECTION_SUCCESSFUL) >= 0)
+            		if (aLine.indexOf("Succesfully Connected") >= 0)
+            		{
+                		dbconnect = false;
+                		break;
+                	}
+                	else if ((!aLine.startsWith("WASX7")) && (!aLine.contains("Failed with Exception")))//21053
+                	{
+                		dbconnect = true;
+                		result += output;//21053
+                	}
+                }
+                inFR.close();
+                inBR.close();	               
+
+                String remStr = "java.lang.ClassNotFoundException";//21053
+        		if (result.contains(remStr))
+        		{
+        			result = result.substring(result.indexOf(remStr)+remStr.length()+2, result.length());
+        		}
+            //}
+               
+            if (!dbconnect)
+            	result = "Successfully connected"; //Messages.DATABASE_CONNECTION_SUCCESSFUL;
+             
+        }
+        catch(Exception e)
+        {
+        	e.printStackTrace();
+           // LOGGER.exception(e.getLocalizedMessage(), e, this.getClass().getName(), "testDBConnection");
+        	//throw new ConfigurationManagerException(NLS.bind(Messages.EXCEPTION_EXECUTING_TASK_CONFIGURATION, e.getLocalizedMessage()));
+        }
+
+        return result;
+
+    }*/
 }
